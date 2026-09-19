@@ -1,0 +1,135 @@
+---
+title: "Data Maker: Airport Route Survey"
+subtitle: "Generating fictional survey data for the chi-square lesson"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  Generates a fictional survey dataset of Southwestern Madison respondents,
+  recording each respondent's origin and their usual route to the airport.
+categories: [numpy, chi-square, data generation]
+jupyter: python3
+execute:
+  echo: true
+  freeze: auto
+---
+
+## About this notebook
+
+This notebook creates **fictional** data. None of the respondents are real.
+
+The imagined scenario: the airport commissioned a survey of travelers who live in the Southwestern part of the Madison, Wisconsin metropolitan area. The survey asked two questions:
+
+1. **Which route do you usually take to the airport?**
+   - *North*: around the top of Lake Mendota
+   - *Isthmus*: straight through downtown on the isthmus
+   - *South*: east on the Beltline, then north to the airport
+2. **Where are you from?**
+   - *Madison native*: raised in Madison
+   - *Greater Madison native*: raised in the greater Madison area
+   - *Transplant*: raised somewhere else, moved to Madison for work or other reasons
+
+The research question is whether the route people take to the airport is related to whether or not they are from Madison.
+
+Because we are making the data ourselves, we get to decide the answer ahead of time. That lets us later check whether a chi-square test finds the relationship we planted.
+
+## Setup
+
+The only libraries we need are numpy and pandas. We import `display()` and `Markdown` for added convenience
+
+```{python}
+# Import Numpy, diplsay, and Markdown
+import numpy as np
+import pandas as pd
+from IPython.display import display, Markdown
+
+# Set a random seed for reproducibility
+np.random.seed(100)
+```
+
+## Deciding how many respondents
+
+Here we set the sample size. Changing this number is an easy way to explore later how sample size affects the chi-square test.
+
+```{python}
+n_respondents = 300
+```
+
+## A function to return a semi-random route based on origin
+
+```{python}
+def get_route(origin):
+    """
+    Returns a semi-random route based on the origin of the respondent.
+    The function "bakes in" the non-random relationship making sure the route
+    will be influenced by (be a function of) the respondent's origin.
+    Args: origin (str): The origin of the respondent.
+    Returns: str: The route of the respondent.
+    """
+
+    if origin == "Madison native":
+        # Of Madison natives 40% use north, 40% use isthmus, 20% use south
+        return np.random.choice(
+          ["North", "Isthmus", "South"], p=[0.4, 0.4, 0.2])
+    elif origin == "Greater Madison native":
+        # Of Greater Madison natives 30% use north, 50% use isthmus, 20% use south
+        return np.random.choice(
+          ["North", "Isthmus", "South"], p=[0.3, 0.5, 0.2])
+    else:
+        # Of Transplants 20% use north, 30% use isthmus, 50% use south
+        return np.random.choice(
+          ["North", "Isthmus", "South"], p=[0.2, 0.3, 0.5])
+```
+
+## Create a numpy array (a one dimesional array for origin)
+
+This array will be the column of fictional responses from survey respondents indicating if they were a transplant to Madison (having moved here from some other place), if they are a Madison native, or if they were from the greater surounding Madison area.
+
+```{python}
+origins = np.array(["Madison native", "Greater Madison native", "Transplant"])
+
+# Share of respondents in each origin group (must sum to 1).
+origin_probs = [0.35, 0.25, 0.40]
+
+origin_col = np.random.choice(origins, p=origin_probs, size=n_respondents)
+
+# Previw the first ten results of origin_col
+display(Markdown(f"`origin_col` : {" - ".join(origin_col[:10])}"))
+```
+
+Next the function `get_rount(origin)` combined with a list comprehension creates the semi-random responses
+
+```{python}
+routes_col = [get_route(o) for o in origin_col]
+
+# Peek at the first ten respondents.
+display(Markdown(f"`routes` : {" - ".join(routes_col[:10])}"))
+```
+
+## Combine the columns into a data set
+
+Pandas using `pd.DataFrame()` makes it easy to combine the columns into a data set. By passing ageneric Python dictionary to `pd.DataFrame()`, we can create a data frame with columns for each variable. The dictionary keys will be column names while the values will be the column data.
+
+```{python}
+#| label: tbl-create-survey-data
+#| tbl-cap: "Survey data frame with origin and route columns."
+
+survey_data = pd.DataFrame(
+  {'Origin': origin_col, 
+  'Route': routes_col}
+)
+
+display(Markdown(survey_data.sample(6).to_markdown()))
+```
+
+Reading @tbl-create-survey-data shows the survey data frame with origin and route columns. On the left column we see each respondent's reported origin and on the right we see each respondent's reported route.
+
+## Saving the data
+
+We save the data as a CSV file. The `header` argument writes the column names on the first line. `comments=""` keeps numpy from putting a `#` in front of the header.
+
+```python
+# Using Pandas it is simple to save a csv
+survey_data.to_csv('airport_route_suvey.csv')
+```
+
+The file `airport_route_survey.csv` is now saved in the same folder as this notebook, ready for the chi-square analysis.

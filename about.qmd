@@ -1,0 +1,15 @@
+---
+title: "About"
+---
+
+This site is a place for notes related to using **Python for chi-square
+(Chi2) analyses**.
+
+The goal is to keep a growing set of small, focused examples that show
+how to set up categorical data, run a chi-square test, and interpret the
+results. Where possible, the examples use fictional datasets that are
+generated in the notebooks themselves, so anyone can reproduce the
+results without downloading extra files.
+
+The site is built with [Quarto](https://quarto.org) and the code for
+each page is written in Python.

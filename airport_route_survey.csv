@@ -1,0 +1,301 @@
+respondent_id,origin,route
+1,Transplant,South
+2,Madison native,Isthmus
+3,Transplant,South
+4,Transplant,North
+5,Madison native,South
+6,Greater Madison native,South
+7,Greater Madison native,South
+8,Madison native,Isthmus
+9,Transplant,South
+10,Transplant,Isthmus
+11,Madison native,Isthmus
+12,Greater Madison native,Isthmus
+13,Greater Madison native,South
+14,Greater Madison native,South
+15,Transplant,South
+16,Transplant,South
+17,Madison native,South
+18,Transplant,South
+19,Madison native,South
+20,Transplant,Isthmus
+21,Madison native,Isthmus
+22,Transplant,North
+23,Madison native,Isthmus
+24,Transplant,North
+25,Transplant,Isthmus
+26,Madison native,Isthmus
+27,Madison native,Isthmus
+28,Greater Madison native,South
+29,Transplant,South
+30,Transplant,Isthmus
+31,Madison native,South
+32,Greater Madison native,South
+33,Transplant,North
+34,Greater Madison native,South
+35,Greater Madison native,South
+36,Transplant,North
+37,Transplant,South
+38,Greater Madison native,South
+39,Madison native,Isthmus
+40,Madison native,South
+41,Transplant,Isthmus
+42,Transplant,South
+43,Greater Madison native,Isthmus
+44,Madison native,South
+45,Madison native,Isthmus
+46,Transplant,South
+47,Madison native,Isthmus
+48,Transplant,South
+49,Transplant,Isthmus
+50,Madison native,North
+51,Madison native,Isthmus
+52,Transplant,Isthmus
+53,Greater Madison native,Isthmus
+54,Madison native,Isthmus
+55,Greater Madison native,North
+56,Madison native,North
+57,Greater Madison native,North
+58,Madison native,North
+59,Greater Madison native,South
+60,Greater Madison native,South
+61,Transplant,Isthmus
+62,Madison native,Isthmus
+63,Transplant,South
+64,Greater Madison native,South
+65,Transplant,South
+66,Transplant,South
+67,Madison native,Isthmus
+68,Madison native,South
+69,Transplant,North
+70,Greater Madison native,South
+71,Madison native,Isthmus
+72,Greater Madison native,South
+73,Madison native,South
+74,Madison native,South
+75,Transplant,Isthmus
+76,Madison native,Isthmus
+77,Transplant,South
+78,Transplant,South
+79,Transplant,Isthmus
+80,Greater Madison native,Isthmus
+81,Transplant,South
+82,Greater Madison native,South
+83,Madison native,Isthmus
+84,Madison native,North
+85,Madison native,Isthmus
+86,Transplant,South
+87,Greater Madison native,South
+88,Greater Madison native,Isthmus
+89,Greater Madison native,Isthmus
+90,Transplant,South
+91,Transplant,South
+92,Greater Madison native,North
+93,Greater Madison native,South
+94,Madison native,North
+95,Madison native,South
+96,Transplant,North
+97,Transplant,Isthmus
+98,Madison native,South
+99,Madison native,South
+100,Greater Madison native,South
+101,Madison native,Isthmus
+102,Madison native,South
+103,Greater Madison native,South
+104,Madison native,North
+105,Transplant,Isthmus
+106,Transplant,South
+107,Transplant,Isthmus
+108,Madison native,South
+109,Transplant,Isthmus
+110,Transplant,North
+111,Madison native,Isthmus
+112,Madison native,Isthmus
+113,Transplant,Isthmus
+114,Madison native,Isthmus
+115,Transplant,South
+116,Greater Madison native,South
+117,Madison native,Isthmus
+118,Transplant,Isthmus
+119,Greater Madison native,South
+120,Transplant,South
+121,Transplant,South
+122,Transplant,South
+123,Madison native,South
+124,Transplant,South
+125,Transplant,North
+126,Madison native,Isthmus
+127,Greater Madison native,South
+128,Madison native,North
+129,Transplant,South
+130,Greater Madison native,South
+131,Madison native,South
+132,Transplant,South
+133,Greater Madison native,South
+134,Transplant,South
+135,Transplant,Isthmus
+136,Greater Madison native,South
+137,Madison native,South
+138,Transplant,South
+139,Greater Madison native,North
+140,Madison native,South
+141,Madison native,South
+142,Transplant,South
+143,Transplant,South
+144,Transplant,South
+145,Madison native,Isthmus
+146,Greater Madison native,South
+147,Madison native,South
+148,Madison native,South
+149,Madison native,Isthmus
+150,Greater Madison native,South
+151,Transplant,South
+152,Transplant,South
+153,Transplant,Isthmus
+154,Transplant,South
+155,Greater Madison native,South
+156,Greater Madison native,South
+157,Transplant,South
+158,Greater Madison native,Isthmus
+159,Transplant,Isthmus
+160,Madison native,South
+161,Madison native,South
+162,Madison native,Isthmus
+163,Madison native,Isthmus
+164,Madison native,Isthmus
+165,Greater Madison native,South
+166,Madison native,Isthmus
+167,Transplant,South
+168,Transplant,South
+169,Madison native,South
+170,Transplant,South
+171,Transplant,Isthmus
+172,Madison native,Isthmus
+173,Transplant,Isthmus
+174,Madison native,Isthmus
+175,Greater Madison native,South
+176,Madison native,Isthmus
+177,Madison native,North
+178,Madison native,North
+179,Madison native,Isthmus
+180,Transplant,South
+181,Transplant,South
+182,Greater Madison native,South
+183,Transplant,Isthmus
+184,Madison native,Isthmus
+185,Madison native,North
+186,Transplant,South
+187,Greater Madison native,South
+188,Transplant,Isthmus
+189,Madison native,North
+190,Madison native,Isthmus
+191,Madison native,Isthmus
+192,Madison native,South
+193,Madison native,North
+194,Transplant,South
+195,Madison native,Isthmus
+196,Transplant,South
+197,Madison native,South
+198,Greater Madison native,North
+199,Madison native,Isthmus
+200,Madison native,Isthmus
+201,Transplant,Isthmus
+202,Transplant,South
+203,Transplant,Isthmus
+204,Madison native,Isthmus
+205,Greater Madison native,Isthmus
+206,Madison native,North
+207,Madison native,South
+208,Transplant,South
+209,Transplant,South
+210,Transplant,South
+211,Greater Madison native,Isthmus
+212,Greater Madison native,South
+213,Transplant,South
+214,Greater Madison native,South
+215,Transplant,South
+216,Madison native,Isthmus
+217,Madison native,North
+218,Madison native,Isthmus
+219,Greater Madison native,Isthmus
+220,Transplant,South
+221,Greater Madison native,Isthmus
+222,Transplant,South
+223,Transplant,South
+224,Transplant,South
+225,Madison native,Isthmus
+226,Madison native,Isthmus
+227,Transplant,South
+228,Transplant,North
+229,Transplant,North
+230,Transplant,South
+231,Madison native,Isthmus
+232,Transplant,Isthmus
+233,Greater Madison native,South
+234,Madison native,North
+235,Madison native,Isthmus
+236,Greater Madison native,South
+237,Transplant,South
+238,Transplant,Isthmus
+239,Greater Madison native,South
+240,Greater Madison native,South
+241,Madison native,Isthmus
+242,Transplant,South
+243,Transplant,South
+244,Madison native,North
+245,Madison native,Isthmus
+246,Madison native,North
+247,Transplant,South
+248,Transplant,South
+249,Transplant,North
+250,Greater Madison native,Isthmus
+251,Madison native,South
+252,Madison native,Isthmus
+253,Madison native,Isthmus
+254,Transplant,North
+255,Transplant,South
+256,Greater Madison native,South
+257,Greater Madison native,North
+258,Transplant,South
+259,Greater Madison native,South
+260,Madison native,North
+261,Transplant,South
+262,Transplant,South
+263,Transplant,South
+264,Greater Madison native,North
+265,Greater Madison native,North
+266,Transplant,South
+267,Madison native,Isthmus
+268,Madison native,Isthmus
+269,Madison native,Isthmus
+270,Greater Madison native,South
+271,Madison native,South
+272,Greater Madison native,South
+273,Madison native,Isthmus
+274,Greater Madison native,South
+275,Transplant,South
+276,Madison native,Isthmus
+277,Madison native,Isthmus
+278,Greater Madison native,South
+279,Transplant,Isthmus
+280,Transplant,Isthmus
+281,Transplant,Isthmus
+282,Madison native,Isthmus
+283,Greater Madison native,South
+284,Greater Madison native,South
+285,Madison native,Isthmus
+286,Transplant,South
+287,Greater Madison native,North
+288,Transplant,Isthmus
+289,Madison native,Isthmus
+290,Madison native,South
+291,Greater Madison native,South
+292,Greater Madison native,South
+293,Greater Madison native,South
+294,Madison native,Isthmus
+295,Greater Madison native,South
+296,Transplant,Isthmus
+297,Transplant,Isthmus
+298,Madison native,Isthmus
+299,Transplant,South
+300,Madison native,South

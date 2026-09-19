@@ -1,0 +1,23 @@
+---
+title: "Using Python To Conduct Chi2 Analyses"
+---
+
+Welcome. This site is a collection of notes, examples, and walkthroughs for conducting **chi-square (Chi2) analyses in Python**.
+
+Chi-square tests are one of the most common tools for asking whether two categorical variables are related. The notes here focus on the practical side: preparing data, running the test, and interpreting the results.
+
+## Site contents
+
+A quick tour of the pages available from the navigation bar above.
+
+### [Data Maker](data-maker.qmd) &mdash; `data-maker.qmd`
+
+Generates a small, fictional survey dataset used elsewhere on the site. The scenario is an airport survey of Southwestern Madison travelers, recording each respondent's origin and their usual route to the airport. Running this page writes `airport_route_survey.csv` next to the notebook so downstream pages have data to work with.
+
+### [Data Preview](data-preview.qmd) &mdash; `data-preview.qmd`
+
+A companion to Data Maker. Loads `airport_route_survey.csv` with pandas and prints the full dataset to the page as a Markdown table using `display(Markdown(...))`. Useful for confirming that the data generator produced what you expected.
+
+### [Chi-Square Tutorial](chi2-example-tutorial.qmd) &mdash; `chi2-example-tutorial.qmd`
+
+A self-paced walkthrough of the chi-square test of independence, using a fictional evaluation of three math programs. Covers hypotheses, expected values, normalized errors, degrees of freedom, and how to turn a chi-square statistic into a p-value. Tables and equations are numbered and cross-referenced, and the page ends with a scipy-generated reference table of chi-square critical values.

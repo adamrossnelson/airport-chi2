@@ -1,0 +1,440 @@
+---
+title: "Chi-Square Test of Independence: A Worked Example"
+subtitle: "A self-paced lesson on testing whether two categorical variables are related"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  A step-by-step, self-paced walkthrough of the chi-square test of
+  independence, using a fictional evaluation of three math programs.
+  Includes a reference table of chi-square critical values.
+categories: [chi-square, statistics, hypothesis testing]
+jupyter: python3
+execute:
+  echo: false
+  freeze: auto
+---
+
+```{=html}
+<style>
+  .ring-green, .ring-red, .ring-blue, .ring-gold {
+    border-radius: 999px;
+    padding: 0 0.45em;
+    border: 3px solid;
+  }
+  .ring-green { border-color: #4caf50; }
+  .ring-red   { border-color: #c62828; }
+  .ring-blue  { border-color: #1e4e8c; }
+  .ring-gold  { border-color: #f4b400; }
+</style>
+```
+
+## What you will learn
+
+By the end of this lesson you will be able to:
+
+- Explain what a chi-square test of independence is used for.
+- State a null hypothesis and an alternative hypothesis for a chi-square test.
+- Calculate expected values from a table of counts.
+- Calculate the chi-square statistic, one cell at a time.
+- Find the degrees of freedom and use a table to estimate a p-value.
+- Decide whether to reject or fail to reject the null hypothesis.
+
+You do not need any background in statistics or programming. Everything in this lesson is arithmetic: adding, subtracting, multiplying, dividing, and squaring. A calculator or a spreadsheet is helpful but not required.
+
+## The big idea
+
+Sometimes we want to know whether two **categorical variables** are related. A categorical variable is one whose values are categories rather than numbers, like a favorite color, a type of program, or a choice of route.
+
+The **chi-square test of independence** (chi rhymes with *sky*) helps us decide between two possibilities:
+
+- The two variables are **independent**: knowing one cannot help you predict the other.
+- The two variables are **dependent**: knowing one can help you predict the other.
+
+## The scenario
+
+Imagine a school district is evaluating three math curriculums:
+
+**Math Program A**, **Math Program B**, and **Math Program C**. Every student studied under exactly one of the three programs. For this lesson we will set aside *how* students ended up in each program.
+
+The district wants to know whether the math program is related to what students do after they graduate from high school. For each student, the district recorded one of four outcomes:
+
+- Full-time work
+- Technical school
+- College or university
+- Military service
+
+The district collected data for two years, with nearly 24,000 students in total.
+
+**Research question:** Does the math program students studied relate to their post-high-school outcome?
+
+## The hypotheses
+
+Every statistical test begins with two competing statements called hypotheses.
+
+- **Null hypothesis:** There is no relationship. Post-high-school outcomes are independent of the math program.
+- **Alternative hypothesis:** There is a relationship. Post-high-school outcomes depend on the math program.
+
+The test works by assuming the null hypothesis is true, and then asking how surprising our data would be if that were so. If the data would be very surprising, we reject the null hypothesis.
+
+## The data
+
+The data is summarized in a **cross tabulation**, which is a table of counts. Each row is a math program and each column is an outcome. Each box in the table is called a **cell**, and each cell counts the students who share that row *and* that column.
+
+For example, in the first year, 1,278 students studied Math Program A and then went on to full-time work.
+
+|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+|-------------------|---------:|---------:|---------:|---------:|----------:|
+| **Math Program A** |     1278 |     1564 |      682 |      343 |      3867 |
+| **Math Program B** |     1309 |     1525 |      758 |      359 |      3951 |
+| **Math Program C** |     1288 |     1575 |      873 |      365 |      4101 |
+| **TOTAL**          |     3875 |     4664 |     2313 |     1067 |    11,919 |
+
+: Observed counts, year one of the evaluation. {#tbl-year1-observed}
+
+|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+|-------------------|---------:|---------:|---------:|---------:|----------:|
+| **Math Program A** |     1219 |     1636 |      683 |      375 |      3913 |
+| **Math Program B** |     1245 |     1577 |      745 |      389 |      3956 |
+| **Math Program C** |     1229 |     1640 |      765 |      379 |      4013 |
+| **TOTAL**          |     3693 |     4853 |     2193 |     1143 |    11,882 |
+
+: Observed counts, year two of the evaluation. {#tbl-year2-observed}
+
+The table has three kinds of totals, which you will use again and again:
+
+- A **row total** (right-hand column) is the number of students in one math program.
+- A **column total** (bottom row) is the number of students with one outcome.
+- The **grand total** (bottom-right corner) is the number of students overall.
+
+The counts in the table, the numbers we actually saw, are called the **observed values**.
+
+::: {.callout-note}
+## A word about matrices
+
+A grid of numbers arranged in rows and columns is called a **matrix**. The core of each table above, without the totals, is a matrix with 3 rows and 4 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation "for every cell in the matrix" is a pattern you will see often, especially once we move to Python.
+:::
+
+## The formula
+
+Here is the formula for the chi-square statistic, which is often written as χ² or X²:
+
+$$
+\chi^2 = \sum_{i=1}^{n} \frac{(Observed_i - Expected_i)^2}{Expected_i}
+$$ {#eq-chi2}
+
+In plain words, for each cell:
+
+1. Subtract the **expected** value from the **observed** value.
+2. **Square** that difference.
+3. **Divide** by the expected value.
+
+Then **add up** the results from every cell. The symbol Σ (sigma) means "add up," and the little *i* simply means "for each cell, one at a time."
+
+You already have the observed values. The next step is to find the expected values.
+
+## Step 1: Calculate the expected values
+
+### What is an expected value?
+
+An expected value answers this question: *if the null hypothesis were true and there were no relationship, how many students would we expect to see in this cell?*
+
+If the math program made no difference, then each program would send students to each outcome in the same proportions as the group overall. The expected values capture exactly that.
+
+### The recipe
+
+For each cell:
+
+$$
+Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
+$$ {#eq-expected}
+
+In the examples below, the rings show which numbers to use:
+
+- [cell]{.ring-green} the cell you are working on
+- [row total]{.ring-red} that cell's row total
+- [column total]{.ring-blue} that cell's column total
+- [grand total]{.ring-gold} the grand total
+
+### Worked example 1: Math Program A, Full-Time Work
+
+|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+|-------------------|---------:|---------:|---------:|---------:|----------:|
+| **Math Program A** | [1278]{.ring-green} | 1564 | 682 | 343 | [3867]{.ring-red} |
+| **Math Program B** | 1309 | 1525 | 758 | 359 | 3951 |
+| **Math Program C** | 1288 | 1575 | 873 | 365 | 4101 |
+| **TOTAL**          | [3875]{.ring-blue} | 4664 | 2313 | 1067 | [11,919]{.ring-gold} |
+
+: Worked example 1 &mdash; Math Program A, Full-Time Work. {#tbl-ex1-rings}
+
+$$
+Expected = \frac{3867 \times 3875}{11919} = \frac{14{,}984{,}625}{11919} = 1257.205
+$$ {#eq-expected-ex1}
+
+If there were no relationship, we would expect about 1,257 students in this cell. We actually observed 1,278.
+
+### Worked example 2: Math Program B, Technical School
+
+|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+|-------------------|---------:|---------:|---------:|---------:|----------:|
+| **Math Program A** | 1278 | 1564 | 682 | 343 | 3867 |
+| **Math Program B** | 1309 | [1525]{.ring-green} | 758 | 359 | [3951]{.ring-red} |
+| **Math Program C** | 1288 | 1575 | 873 | 365 | 4101 |
+| **TOTAL**          | 3875 | [4664]{.ring-blue} | 2313 | 1067 | [11,919]{.ring-gold} |
+
+: Worked example 2 &mdash; Math Program B, Technical School. {#tbl-ex2-rings}
+
+$$
+Expected = \frac{3951 \times 4664}{11919} = \frac{18{,}427{,}464}{11919} = 1546.058
+$$ {#eq-expected-ex2}
+
+Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell.
+
+### The full matrix of expected values
+
+Repeat the recipe for all 12 cells to get the expected values for the first year.
+
+|                   | Full-Time Work | Technical School | College/University | Military Service |
+|-------------------|---------:|---------:|---------:|---------:|
+| **Math Program A** | [1257.205]{.ring-green} | 1513.188 | 750.430 | 346.177 |
+| **Math Program B** | 1284.514 | [1546.058]{.ring-green} | 766.731 | 353.697 |
+| **Math Program C** | 1333.281 | 1604.754 | 795.840 | 367.125 |
+
+: Expected values, year one. {#tbl-year1-expected}
+
+::: {.callout-tip}
+## Check your work
+
+The expected values in each row should add up to that row's total, and the expected values in each column should add up to that column's total. For example, 1257.205 + 1513.188 + 750.430 + 346.177 = 3867, which is the row total for Math Program A. If your sums do not match, look for an arithmetic slip.
+:::
+
+## Step 2: Calculate the normalized errors
+
+Next, compare each observed value with its expected value. For each cell, calculate:
+
+$$
+\frac{(Observed - Expected)^2}{Expected}
+$$ {#eq-normerror}
+
+This quantity is sometimes called a **normalized error**. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.
+
+Notice that the expected matrix is used twice here: once to find the difference, and again to divide.
+
+### Worked example: Math Program A, Full-Time Work
+
+- Observed: [1278]{.ring-red} (from @tbl-year1-observed)
+- Expected: [1257.205]{.ring-blue} (from @tbl-year1-expected)
+
+$$
+\frac{(1278 - 1257.205)^2}{1257.205} = \frac{(20.795)^2}{1257.205} = \frac{432.432}{1257.205} = 0.344
+$$ {#eq-normerror-ex1}
+
+### A second example: Math Program B, Technical School
+
+$$
+\frac{(1525 - 1546.058)^2}{1546.058} = \frac{(-21.058)^2}{1546.058} = \frac{443.439}{1546.058} = 0.287
+$$ {#eq-normerror-ex2}
+
+Here the difference was negative, but squaring it made the result
+positive.
+
+### The full matrix of normalized errors
+
+|                   | Full-Time Work | Technical School | College/University | Military Service |
+|-------------------|---------:|---------:|---------:|---------:|
+| **Math Program A** | 0.344 | 1.706 | 6.240 | 0.029 |
+| **Math Program B** | 0.467 | 0.287 | 0.099 | 0.080 |
+| **Math Program C** | 1.538 | 0.552 | 7.481 | 0.012 |
+
+: Normalized errors, year one. {#tbl-year1-errors}
+
+Large numbers point to cells where the observed count is far from what we would expect under no relationship. In year one, the two biggest contributors are in the College/University column: Program A sent fewer students to college than expected (682 versus about 750), and Program C sent more (873 versus about 796).
+
+## Step 3: Add them up to get the chi-square statistic
+
+The chi-square statistic is the sum of all the normalized errors:
+
+$$
+\chi^2 = 0.344 + 1.706 + 6.240 + 0.029 + 0.467 + 0.287 + 0.099 + 0.080 + 1.538 + 0.552 + 7.481 + 0.012
+$$ {#eq-chi2-sum}
+
+$$
+\chi^2 = 18.8346
+$$ {#eq-chi2-result}
+
+That's it. A few simple operations, repeated across the matrix, give us
+our chi-square statistic.
+
+::: {.callout-note}
+## Rounding
+
+If you add the rounded values above, you get 18.835. The value 18.8346 comes from carrying all the decimal places through each step. Small differences in the last decimal place are normal and do not change the conclusion.
+:::
+
+## Step 4: Find the degrees of freedom
+
+To turn the chi-square statistic into a p-value, we need one more number, called the **degrees of freedom** (often written *df*). For a chi-square test of independence:
+
+$$
+df = (\text{number of rows} - 1) \times (\text{number of columns} - 1)
+$$ {#eq-df}
+
+Count only the rows and columns of categories, not the totals. Our table has 3 math programs and 4 outcomes:
+
+$$
+df = (3 - 1) \times (4 - 1) = 2 \times 3 = 6
+$$ {#eq-df-calc}
+
+## Step 5: Find the p-value and make a decision
+
+### What a p-value tells you
+
+The **p-value** is the probability of getting results as extreme as ours, or more extreme, *if the null hypothesis were true*. A small p-value means our data would be surprising in a world with no relationship.
+
+We compare the p-value to a cutoff called the **significance level**. The conventional significance level is **0.05**.
+
+- If the p-value is **less than 0.05**, we **reject the null hypothesis** and conclude there is a relationship.
+- If the p-value is **0.05 or greater**, we **fail to reject the null hypothesis**. We do not have enough evidence of a relationship.
+
+### Using the table
+
+The chi-square reference table (@tbl-chi2-critical) at the end of this lesson lets you estimate the p-value. It is a **right-tailed** table: the column headings are p-values, and the numbers inside the table are chi-square statistics. Bigger chi-square statistics sit farther to the right, where the p-values are smaller.
+
+To use it:
+
+1. Find the row that matches your degrees of freedom.
+2. Move across that row until you find where your chi-square statistic fits between two numbers.
+3. Read the p-values at the top of those two columns. Your p-value lies between them.
+
+### Year one result
+
+Here is the row for 6 degrees of freedom:
+
+| df | 0.995 | 0.99 | 0.975 | 0.95 | 0.90 | 0.10 | 0.05 | 0.025 | 0.01 | 0.005 |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **6** | 0.676 | 0.872 | 1.237 | 1.635 | 2.204 | 10.645 | 12.592 | 14.449 | 16.812 | [18.548]{.ring-blue} |
+
+: Critical values for 6 degrees of freedom. {#tbl-df6-row}
+
+Our chi-square statistic, [18.8346]{.ring-green}, is larger than every number in the row, even 18.548 under the 0.005 column. That means our p-value is smaller than 0.005. (The exact p-value is 0.00445.)
+
+**Decision for year one:** The p-value is less than 0.05, so we **reject the null hypothesis**. In year one, there is evidence of a relationship between math program and post-high-school outcome.
+
+## Your turn: The second year
+
+Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called **your turn** and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.
+
+Here again are the observed values for the second year:
+
+|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+|-------------------|---------:|---------:|---------:|---------:|----------:|
+| **Math Program A** |     1219 |     1636 |      683 |      375 |      3913 |
+| **Math Program B** |     1245 |     1577 |      745 |      389 |      3956 |
+| **Math Program C** |     1229 |     1640 |      765 |      379 |      4013 |
+| **TOTAL**          |     3693 |     4853 |     2193 |     1143 |    11,882 |
+
+: Observed counts, year two (repeated for the exercise). {#tbl-year2-observed-again}
+
+Work through each step:
+
+1. Calculate the 12 expected values (row total × column total ÷ grand total).
+2. Calculate the 12 normalized errors ((observed − expected)² ÷ expected).
+3. Add up the normalized errors to get the chi-square statistic.
+4. Find the degrees of freedom.
+5. Use the table to estimate the p-value and make a decision.
+
+When you have finished, expand the answers below to check your work.
+
+::: {.callout-tip collapse="true"}
+## Answers: year two expected values
+
+|                   | Full-Time Work | Technical School | College/University | Military Service |
+|-------------------|---------:|---------:|---------:|---------:|
+| **Math Program A** | 1216.185 | 1598.198 | 722.202 | 376.415 |
+| **Math Program B** | 1229.550 | 1615.761 | 730.139 | 380.551 |
+| **Math Program C** | 1247.266 | 1639.041 | 740.659 | 386.034 |
+
+: Expected values, year two. {#tbl-year2-expected}
+:::
+
+::: {.callout-tip collapse="true"}
+## Answers: year two normalized errors
+
+|                   | Full-Time Work | Technical School | College/University | Military Service |
+|-------------------|---------:|---------:|---------:|---------:|
+| **Math Program A** | 0.007 | 0.894 | 2.128 | 0.005 |
+| **Math Program B** | 0.194 | 0.930 | 0.302 | 0.188 |
+| **Math Program C** | 0.267 | 0.001 | 0.800 | 0.128 |
+
+: Normalized errors, year two. {#tbl-year2-errors}
+:::
+
+::: {.callout-tip collapse="true"}
+## Answers: year two chi-square, p-value, and decision
+
+- Chi-square statistic: **5.8442**
+- Degrees of freedom: (3 − 1) × (4 − 1) = **6**
+- In the row for 6 degrees of freedom, 5.8442 falls between 2.204 (the 0.90 column) and 10.645 (the 0.10 column). So the p-value is **between 0.10 and 0.90**. (The exact p-value is 0.441.)
+
+**Decision for year two:** The p-value is greater than 0.05, so we **fail to reject the null hypothesis**. In year two, we do not have evidence of a relationship between math program and post-high-school outcome.
+:::
+
+## Interpreting the two years together
+
+The two years led to different conclusions. Year one showed evidence of a relationship, and year two did not. This is a useful reminder that one test on one set of data is not the final word. Results can differ from sample to sample, which is why repeating a study matters.
+
+In a scenario such as this we might attribute the first year result as something that is known as an "implementation bump" or "implementation dip" which is a common result in observational field studies.  Keep in mind, too, that a chi-square test tells you whether two variables are *related*. It does not, on its own, tell you that one *caused* the other. 
+
+Remember also that we set aside how students were placed into each program. If, for example, students who already planned on college tended to choose Program C, that alone could create a relationship in the data.
+
+## Other ways to get the p-value
+
+The table gives you a range. Software can give you the exact p-value. In Excel, there are two functions for this.
+
+**`CHISQ.TEST`** compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:
+
+```
+=CHISQ.TEST(observed range, expected range)
+```
+
+**`CHISQ.DIST.RT`** converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:
+
+```
+=CHISQ.DIST.RT(chi-square statistic, degrees of freedom)
+```
+
+For year one, `=CHISQ.DIST.RT(18.8346, 6)` returns 0.00445.
+
+In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.
+
+## Summary
+
+1. State the null hypothesis (no relationship) and the alternative hypothesis (a relationship).
+2. Organize the observed counts in a cross tabulation with row, column, and grand totals.
+3. For each cell, calculate the expected value: row total × column total ÷ grand total.
+4. For each cell, calculate the normalized error: (observed − expected)² ÷ expected.
+5. Add up the normalized errors to get the chi-square statistic.
+6. Find the degrees of freedom: (rows − 1) × (columns − 1).
+7. Use the table (or software) to find the p-value.
+8. If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.
+
+## Reference: Chi-square critical values {#sec-chi2-table}
+
+Find the row for your degrees of freedom. The column headings are right-tail p-values. If your chi-square statistic falls between two numbers in the row, your p-value falls between the two column headings.
+
+```{python}
+#| output: asis
+#| echo: true
+
+# Use scipy to create a table of p-values based on critical values and df
+from scipy import stats
+
+p_values = [0.995, 0.99, 0.975, 0.95, 0.90, 0.10, 0.05, 0.025, 0.01, 0.005]
+
+print("| df | " + " | ".join(str(p) for p in p_values) + " |")
+print("|---:|" + "---:|" * len(p_values))
+for df in range(1, 31):
+    row = [f"{stats.chi2.isf(p, df):.3f}" for p in p_values]
+    print(f"| **{df}** | " + " | ".join(row) + " |")
+print()
+print(": Chi-square critical values by degrees of freedom. {#tbl-chi2-critical}")
+```

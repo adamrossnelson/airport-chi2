@@ -1,0 +1,35 @@
+---
+title: "Data Preview: Airport Route Survey"
+subtitle: "Full listing of the generated survey data"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  Loads the fictional survey dataset produced by the Data Maker page and
+  displays every row as a Markdown table.
+categories: [pandas, chi-square, data preview]
+jupyter: python3
+execute:
+  echo: true
+  freeze: auto
+---
+
+## About this page
+
+This page is a companion to the [Data Maker](data-maker.qmd) page. It
+loads the CSV file that page produces (`airport_route_survey.csv`) and
+prints the entire dataset to the page as a Markdown table.
+
+## Load the data
+
+```{python}
+import pandas as pd
+from IPython.display import display, Markdown
+
+survey = pd.read_csv("airport_route_survey.csv")
+```
+
+## Display the full dataset
+
+```{python}
+display(Markdown(survey.to_markdown(index=False)))
+```
