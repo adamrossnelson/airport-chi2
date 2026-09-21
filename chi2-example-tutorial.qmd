@@ -14,20 +14,6 @@ execute:
   freeze: auto
 ---
 
-```{=html}
-<style>
-  .ring-green, .ring-red, .ring-blue, .ring-gold {
-    border-radius: 999px;
-    padding: 0 0.45em;
-    border: 3px solid;
-  }
-  .ring-green { border-color: #4caf50; }
-  .ring-red   { border-color: #c62828; }
-  .ring-blue  { border-color: #1e4e8c; }
-  .ring-gold  { border-color: #f4b400; }
-</style>
-```
-
 ## What you will learn
 
 By the end of this lesson you will be able to:
@@ -82,7 +68,7 @@ The data is summarized in a **cross tabulation**, which is a table of counts. Ea
 
 For example, in the first year, 1,278 students studied Math Program A and then went on to full-time work.
 
-|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
 |-------------------|---------:|---------:|---------:|---------:|----------:|
 | **Math Program A** |     1278 |     1564 |      682 |      343 |      3867 |
 | **Math Program B** |     1309 |     1525 |      758 |      359 |      3951 |
@@ -91,7 +77,7 @@ For example, in the first year, 1,278 students studied Math Program A and then w
 
 : Observed counts, year one of the evaluation. {#tbl-year1-observed}
 
-|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
 |-------------------|---------:|---------:|---------:|---------:|----------:|
 | **Math Program A** |     1219 |     1636 |      683 |      375 |      3913 |
 | **Math Program B** |     1245 |     1577 |      745 |      389 |      3956 |
@@ -157,12 +143,12 @@ In the examples below, the rings show which numbers to use:
 
 ### Worked example 1: Math Program A, Full-Time Work
 
-|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
 |-------------------|---------:|---------:|---------:|---------:|----------:|
-| **Math Program A** | [1278]{.ring-green} | 1564 | 682 | 343 | [3867]{.ring-red} |
+| **Math Program A** | [1278]{.ring-green aria-label="cell value"} | 1564 | 682 | 343 | [3867]{.ring-red aria-label="row total"} |
 | **Math Program B** | 1309 | 1525 | 758 | 359 | 3951 |
 | **Math Program C** | 1288 | 1575 | 873 | 365 | 4101 |
-| **TOTAL**          | [3875]{.ring-blue} | 4664 | 2313 | 1067 | [11,919]{.ring-gold} |
+| **TOTAL**          | [3875]{.ring-blue aria-label="column total"} | 4664 | 2313 | 1067 | [11,919]{.ring-gold aria-label="grand total"} |
 
 : Worked example 1 &mdash; Math Program A, Full-Time Work. {#tbl-ex1-rings}
 
@@ -174,12 +160,12 @@ If there were no relationship, we would expect about 1,257 students in this cell
 
 ### Worked example 2: Math Program B, Technical School
 
-|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
 |-------------------|---------:|---------:|---------:|---------:|----------:|
 | **Math Program A** | 1278 | 1564 | 682 | 343 | 3867 |
-| **Math Program B** | 1309 | [1525]{.ring-green} | 758 | 359 | [3951]{.ring-red} |
+| **Math Program B** | 1309 | [1525]{.ring-green aria-label="cell value"} | 758 | 359 | [3951]{.ring-red aria-label="row total"} |
 | **Math Program C** | 1288 | 1575 | 873 | 365 | 4101 |
-| **TOTAL**          | 3875 | [4664]{.ring-blue} | 2313 | 1067 | [11,919]{.ring-gold} |
+| **TOTAL**          | 3875 | [4664]{.ring-blue aria-label="column total"} | 2313 | 1067 | [11,919]{.ring-gold aria-label="grand total"} |
 
 : Worked example 2 &mdash; Math Program B, Technical School. {#tbl-ex2-rings}
 
@@ -193,10 +179,10 @@ Notice that the recipe never changes. Only the row and column you look up change
 
 Repeat the recipe for all 12 cells to get the expected values for the first year.
 
-|                   | Full-Time Work | Technical School | College/University | Military Service |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service |
 |-------------------|---------:|---------:|---------:|---------:|
-| **Math Program A** | [1257.205]{.ring-green} | 1513.188 | 750.430 | 346.177 |
-| **Math Program B** | 1284.514 | [1546.058]{.ring-green} | 766.731 | 353.697 |
+| **Math Program A** | [1257.205]{.ring-green aria-label="expected value for the highlighted cell"} | 1513.188 | 750.430 | 346.177 |
+| **Math Program B** | 1284.514 | [1546.058]{.ring-green aria-label="expected value for the highlighted cell"} | 766.731 | 353.697 |
 | **Math Program C** | 1333.281 | 1604.754 | 795.840 | 367.125 |
 
 : Expected values, year one. {#tbl-year1-expected}
@@ -221,8 +207,8 @@ Notice that the expected matrix is used twice here: once to find the difference,
 
 ### Worked example: Math Program A, Full-Time Work
 
-- Observed: [1278]{.ring-red} (from @tbl-year1-observed)
-- Expected: [1257.205]{.ring-blue} (from @tbl-year1-expected)
+- Observed: [1278]{.ring-red aria-label="observed value"} (from @tbl-year1-observed)
+- Expected: [1257.205]{.ring-blue aria-label="expected value"} (from @tbl-year1-expected)
 
 $$
 \frac{(1278 - 1257.205)^2}{1257.205} = \frac{(20.795)^2}{1257.205} = \frac{432.432}{1257.205} = 0.344
@@ -239,7 +225,7 @@ positive.
 
 ### The full matrix of normalized errors
 
-|                   | Full-Time Work | Technical School | College/University | Military Service |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service |
 |-------------------|---------:|---------:|---------:|---------:|
 | **Math Program A** | 0.344 | 1.706 | 6.240 | 0.029 |
 | **Math Program B** | 0.467 | 0.287 | 0.099 | 0.080 |
@@ -311,11 +297,11 @@ Here is the row for 6 degrees of freedom:
 
 | df | 0.995 | 0.99 | 0.975 | 0.95 | 0.90 | 0.10 | 0.05 | 0.025 | 0.01 | 0.005 |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **6** | 0.676 | 0.872 | 1.237 | 1.635 | 2.204 | 10.645 | 12.592 | 14.449 | 16.812 | [18.548]{.ring-blue} |
+| **6** | 0.676 | 0.872 | 1.237 | 1.635 | 2.204 | 10.645 | 12.592 | 14.449 | 16.812 | [18.548]{.ring-blue aria-label="critical value at the 0.005 significance level"} |
 
 : Critical values for 6 degrees of freedom. {#tbl-df6-row}
 
-Our chi-square statistic, [18.8346]{.ring-green}, is larger than every number in the row, even 18.548 under the 0.005 column. That means our p-value is smaller than 0.005. (The exact p-value is 0.00445.)
+Our chi-square statistic, [18.8346]{.ring-green aria-label="calculated chi-square statistic"}, is larger than every number in the row, even 18.548 under the 0.005 column. That means our p-value is smaller than 0.005. (The exact p-value is 0.00445.)
 
 **Decision for year one:** The p-value is less than 0.05, so we **reject the null hypothesis**. In year one, there is evidence of a relationship between math program and post-high-school outcome.
 
@@ -325,7 +311,7 @@ Now try the full process yourself using the year two data. If you have the cours
 
 Here again are the observed values for the second year:
 
-|                   | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service | **TOTAL** |
 |-------------------|---------:|---------:|---------:|---------:|----------:|
 | **Math Program A** |     1219 |     1636 |      683 |      375 |      3913 |
 | **Math Program B** |     1245 |     1577 |      745 |      389 |      3956 |
@@ -347,7 +333,7 @@ When you have finished, expand the answers below to check your work.
 ::: {.callout-tip collapse="true"}
 ## Answers: year two expected values
 
-|                   | Full-Time Work | Technical School | College/University | Military Service |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service |
 |-------------------|---------:|---------:|---------:|---------:|
 | **Math Program A** | 1216.185 | 1598.198 | 722.202 | 376.415 |
 | **Math Program B** | 1229.550 | 1615.761 | 730.139 | 380.551 |
@@ -359,7 +345,7 @@ When you have finished, expand the answers below to check your work.
 ::: {.callout-tip collapse="true"}
 ## Answers: year two normalized errors
 
-|                   | Full-Time Work | Technical School | College/University | Military Service |
+| Math Program       | Full-Time Work | Technical School | College/University | Military Service |
 |-------------------|---------:|---------:|---------:|---------:|
 | **Math Program A** | 0.007 | 0.894 | 2.128 | 0.005 |
 | **Math Program B** | 0.194 | 0.930 | 0.302 | 0.188 |

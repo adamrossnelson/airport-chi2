@@ -118,7 +118,7 @@ survey_data = pd.DataFrame(
   'Route': routes_col}
 )
 
-display(Markdown(survey_data.sample(6).to_markdown()))
+display(Markdown(survey_data.sample(6).rename_axis("Row #").to_markdown()))
 ```
 
 Reading @tbl-create-survey-data shows the survey data frame with origin and route columns. On the left column we see each respondent's reported origin and on the right we see each respondent's reported route.

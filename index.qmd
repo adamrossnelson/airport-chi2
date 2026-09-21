@@ -16,7 +16,7 @@ Generates a small, fictional survey dataset used elsewhere on the site. The scen
 
 ### [Data Preview](data-preview.qmd) &mdash; `data-preview.qmd`
 
-A companion to Data Maker. Loads `airport_route_survey.csv` with pandas and prints the full dataset to the page as a Markdown table using `display(Markdown(...))`. Useful for confirming that the data generator produced what you expected.
+A companion to Data Maker. Loads `airport_route_survey.csv` with pandas and prints the full dataset as a paginated, captioned table using Quarto's `df-print: paged` option. Useful for confirming that the data generator produced what you expected.
 
 ### [Chi-Square Tutorial](chi2-example-tutorial.qmd) &mdash; `chi2-example-tutorial.qmd`
 

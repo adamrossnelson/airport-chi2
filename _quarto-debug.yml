@@ -1,0 +1,18 @@
+# This is a Quarto project profile file. Quarto automatically merges any
+# file named "_quarto-<profile>.yml" into _quarto.yml, but only when that
+# profile is active -- it is never applied to a normal render/preview.
+# Activate this profile with either:
+#   quarto render --profile debug
+#   QUARTO_PROFILE=debug quarto render
+#
+# We use it to keep axe-core accessibility checks (below) out of the
+# default/production build, since axe injects extra script/markup into
+# every rendered page and is only useful while actively debugging.
+#
+# Docs: https://quarto.org/docs/projects/profiles.html
+
+format:
+  html:
+    axe:
+      standard: wcag21aa
+      best-practice: true

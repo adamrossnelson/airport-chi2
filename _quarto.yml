@@ -19,10 +19,10 @@ website:
 
 format:
   html:
+    lang: en
     theme: cosmo
     css: styles.css
     toc: true
-    axe: true
 
 
 
