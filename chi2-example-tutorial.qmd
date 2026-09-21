@@ -240,15 +240,18 @@ Large numbers point to cells where the observed count is far from what we would 
 The chi-square statistic is the sum of all the normalized errors:
 
 $$
-\chi^2 = 0.344 + 1.706 + 6.240 + 0.029 + 0.467 + 0.287 + 0.099 + 0.080 + 1.538 + 0.552 + 7.481 + 0.012
+\begin{aligned}
+\chi^2 &= 0.344 + 1.706 + 6.240 + 0.029 \\
+       &\quad + 0.467 + 0.287 + 0.099 + 0.080 \\
+       &\quad + 1.538 + 0.552 + 7.481 + 0.012
+\end{aligned}
 $$ {#eq-chi2-sum}
 
 $$
 \chi^2 = 18.8346
 $$ {#eq-chi2-result}
 
-That's it. A few simple operations, repeated across the matrix, give us
-our chi-square statistic.
+That's it. A few simple operations, repeated across the matrix, give us our chi-square statistic. This chi-square statistic is the statistic you will want to report in your manuscript, report, or results. You'll also want to report the degrees of freedom (discussed below). Ultimately you'll need this chi-square staistics in addition to the degrees of freedom to find the p-value which is what will inform your decision on whether to reject (or fail to reject) the null hypothesis. Typically, you will also report the p-value when reporting your results.
 
 ::: {.callout-note}
 ## Rounding
@@ -293,21 +296,45 @@ To use it:
 
 ### Year one result
 
-Here is the row for 6 degrees of freedom:
+Here is an excerpt of the reference table, showing degrees of freedom 4 through 8 so you can see how the critical values change from row to row. The row we actually need (6 degrees of freedom) and the column we land in are both circled:
 
-| df | 0.995 | 0.99 | 0.975 | 0.95 | 0.90 | 0.10 | 0.05 | 0.025 | 0.01 | 0.005 |
+| df | 0.995 | 0.99 | 0.975 | 0.95 | 0.90 | 0.10 | 0.05 | 0.025 | 0.01 | [0.005]{.ring-blue aria-label="0.005 significance level column"} |
 |---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **6** | 0.676 | 0.872 | 1.237 | 1.635 | 2.204 | 10.645 | 12.592 | 14.449 | 16.812 | [18.548]{.ring-blue aria-label="critical value at the 0.005 significance level"} |
+| **4** | 0.207 | 0.297 | 0.484 | 0.711 | 1.064 | 7.779 | 9.488 | 11.143 | 13.277 | 14.860 |
+| **5** | 0.412 | 0.554 | 0.831 | 1.145 | 1.610 | 9.236 | 11.070 | 12.833 | 15.086 | 16.750 |
+| [**6**]{.ring-green aria-label="row for 6 degrees of freedom"} | 0.676 | 0.872 | 1.237 | 1.635 | 2.204 | 10.645 | 12.592 | 14.449 | 16.812 | [18.548]{.ring-blue aria-label="critical value at the 0.005 significance level"} |
+| **7** | 0.989 | 1.239 | 1.690 | 2.167 | 2.833 | 12.017 | 14.067 | 16.013 | 18.475 | 20.278 |
+| **8** | 1.344 | 1.646 | 2.180 | 2.733 | 3.490 | 13.362 | 15.507 | 17.535 | 20.090 | 21.955 |
 
-: Critical values for 6 degrees of freedom. {#tbl-df6-row}
+: Critical values for degrees of freedom 4 through 8, with the row for 6 degrees of freedom highlighted. {#tbl-df6-row}
 
-Our chi-square statistic, [18.8346]{.ring-green aria-label="calculated chi-square statistic"}, is larger than every number in the row, even 18.548 under the 0.005 column. That means our p-value is smaller than 0.005. (The exact p-value is 0.00445.)
+Now walk through how to read this, one step at a time:
 
-**Decision for year one:** The p-value is less than 0.05, so we **reject the null hypothesis**. In year one, there is evidence of a relationship between math program and post-high-school outcome.
+1. **Find the right row.** Our test has 6 degrees of freedom, so every comparison happens along the circled row (ignore the rows for 4, 5, 7, and 8). We show these additional rows here only so you can see the pattern of critical values rising and falling with df.
+2. **Scan left to right along that row.** The numbers in the row are the chi-square statistic you would need to reach to hit each p-value at the top of the table. As you move right, the p-values shrink (0.995 down to 0.005), and the critical values grow.
+3. **Place your own chi-square statistic among them.** Our statistic is [18.8346]{.ring-green aria-label="calculated chi-square statistic"}. Compare this 18.8346 value to each critical value in the row. iIt's bigger than 16.812 (the value under the 0.01 column), and it's also bigger than 18.548 (the value under the circled 0.005 column).
+4. **Notice it's bigger than every value shown in the row.** Because 18.8346 exceeds even the critical value in the smallest p-value column this table excerpt shows (0.005), our result is more extreme than anything this row directly reports.
+5. **Translate that into a p-value.** A chi-square statistic that clears the 0.005 column's critical value means the true p-value is smaller than 0.005. This is as precise as the printed table alone can get you. The tells you a ceiling (p < 0.005), not an exact number.
+6. **Confirm with the exact value.** Software can compute the precise p-value instead of just bounding it. Here, the exact p-value is 0.00445, which is indeed smaller than 0.005 (consistent with what the table told us).
+
+::: {.callout-note}
+## Finding exact p-values before software
+
+Today, getting an exact p-value is one function call away. That convenience is fairly new. For most of the history of this test, researchers had no computer to ask, so they relied on printed tables like the one above.
+
+Someone, working by hand or with an early mechanical calculator, had to work out the chi-square distribution's shape for every degree of freedom and figure out exactly which value cut off the top 0.005 (or 0.05, or 0.10) of that distribution's area. That's a calculus problem, not an arithmetic problem, and it isn't something you can do quickly with pencil and paper for even one value, let alone hundreds. So statisticians did that hard work once, wrote the answers down in reference tables like this one, and everyone else just looked up their result the same way you might look up a word in a dictionary rather than working out its definition from scratch every time.
+
+That's also why these tables only show a handful of columns like 0.10, 0.05, 0.025, and 0.005, instead of every possible p-value. Each column had to be calculated and typeset by hand, so the table's authors picked a small, useful set of round, commonly needed values and stopped there. If your chi-square statistic landed between two columns, or beyond the last one like ours did, the most honest answer available to a researcher in, say, 1950 was a range: "somewhere less than 0.005," not "0.00445." Getting the exact figure would have meant doing the underlying calculus yourself, which almost no one working on an applied research question would attempt today.
+
+This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. The table you used above to conclude "p is less than 0.005" is doing the exact same job those printed pages did decades ago. Today, software has just replaced the physical page and closed the gap between columns.
+:::
+
+
+**Decision for year one:** The p-value is less than 0.05, so we reject the null hypothesis. In year one, there is evidence in favor of believing that there is a relationship between math program and post-high-school outcome. We have not proven that there is a relationship. We have not proven that one math program influences student outcomes. Merely we have rejected the null hypothesis that there is no relationship which then means we would tend to believe the alternate hypothesis.
 
 ## Your turn: The second year
 
-Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called **your turn** and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.
+Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called your turn and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.
 
 Here again are the observed values for the second year:
 
@@ -392,6 +419,13 @@ For year one, `=CHISQ.DIST.RT(18.8346, 6)` returns 0.00445.
 
 In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.
 
+There are also websites that will find the p-value for free if you know the chi2 and df statistics.
+
+- [Probabilities for the Chi‐Squared Distribution Calculator - WolframAplha.com](https://es.wolframalpha.com/calculators/mathematics-statistics-probability-distributions-probabilities-for-the-chi-squared-distribution-calculator)
+- [Chi-Square to P-Value Calculator - SocialStatistics.com](https://www.socscistatistics.com/pvalues/chidistribution/calculator/)
+- [P Value Calculator - GraphPad.com](https://www.graphpad.com/quickcalcs/pvalue1/)
+- [P-Value From Chi-Square Calculator - StatCalc.net](https://statcalc.net/p-value-from-chi-square-calculator/)
+
 ## Summary
 
 1. State the null hypothesis (no relationship) and the alternative hypothesis (a relationship).
@@ -418,7 +452,7 @@ p_values = [0.995, 0.99, 0.975, 0.95, 0.90, 0.10, 0.05, 0.025, 0.01, 0.005]
 
 print("| df | " + " | ".join(str(p) for p in p_values) + " |")
 print("|---:|" + "---:|" * len(p_values))
-for df in range(1, 31):
+for df in range(1, 21):
     row = [f"{stats.chi2.isf(p, df):.3f}" for p in p_values]
     print(f"| **{df}** | " + " | ".join(row) + " |")
 print()

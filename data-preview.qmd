@@ -18,18 +18,16 @@ execute:
 
 ## About this page
 
-This page is a companion to the [Data Maker](data-maker.qmd) page. It
-loads the CSV file that page produces (`airport_route_survey.csv`) and
-prints the dataset to the page as a paginated, captioned table
-(@tbl-survey) rather than one enormous block, using Quarto's `df-print:
-paged` option.
+This page is a companion to the [Data Maker](data-maker.qmd) page. It loads the CSV file that page produces (`airport_route_survey.csv`) and prints the entire dataset to the page as a Markdown table.
 
 ## Load the data
 
 ```{python}
 import pandas as pd
+from IPython.display import display, Markdown
 
-survey = pd.read_csv("airport_route_survey.csv")
+
+survey = pd.read_csv("airport_route_survey.csv", index_col=0)
 ```
 
 ## Display the full dataset
@@ -38,5 +36,5 @@ survey = pd.read_csv("airport_route_survey.csv")
 #| label: tbl-survey
 #| tbl-cap: "Airport route survey responses, all 300 rows."
 
-survey
+display(Markdown(survey.rename_axis("Obs #").to_markdown()))
 ```
