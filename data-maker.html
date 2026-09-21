@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Adam Ross Nelson">
-<meta name="dcterms.date" content="2026-09-19">
+<meta name="dcterms.date" content="2026-09-21">
 <meta name="description" content="Generates a fictional survey dataset of Southwestern Madison respondents, recording each respondent’s origin and their usual route to the airport.">
 
 <title>Data Maker: Airport Route Survey – Using Python To Conduct Chi2 Analyses</title>
@@ -211,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 19, 2026</p>
+      <p class="date">September 21, 2026</p>
     </div>
   </div>
   
@@ -247,7 +247,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>The only libraries we need are numpy and pandas. We import <code>display()</code> and <code>Markdown</code> for added convenience</p>
-<div id="82667a74" class="cell" data-execution_count="1">
+<div id="1a8ede3d" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Numpy, diplsay, and Markdown</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -260,13 +260,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="deciding-how-many-respondents" class="level2">
 <h2 class="anchored" data-anchor-id="deciding-how-many-respondents">Deciding how many respondents</h2>
 <p>Here we set the sample size. Changing this number is an easy way to explore later how sample size affects the chi-square test.</p>
-<div id="cf427a0a" class="cell" data-execution_count="2">
+<div id="2b94fd57" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_respondents <span class="op">=</span> <span class="dv">300</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="a-function-to-return-a-semi-random-route-based-on-origin" class="level2">
 <h2 class="anchored" data-anchor-id="a-function-to-return-a-semi-random-route-based-on-origin">A function to return a semi-random route based on origin</h2>
-<div id="32a3b888" class="cell" data-execution_count="3">
+<div id="b32cd9e9" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_route(origin):</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns a semi-random route based on the origin of the respondent.</span></span>
@@ -293,7 +293,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="create-a-numpy-array-a-one-dimesional-array-for-origin" class="level2">
 <h2 class="anchored" data-anchor-id="create-a-numpy-array-a-one-dimesional-array-for-origin">Create a numpy array (a one dimesional array for origin)</h2>
 <p>This array will be the column of fictional responses from survey respondents indicating if they were a transplant to Madison (having moved here from some other place), if they are a Madison native, or if they were from the greater surounding Madison area.</p>
-<div id="7fe15538" class="cell" data-execution_count="4">
+<div id="1b98dd6a" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>origins <span class="op">=</span> np.array([<span class="st">"Madison native"</span>, <span class="st">"Greater Madison native"</span>, <span class="st">"Transplant"</span>])</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Share of respondents in each origin group (must sum to 1).</span></span>
@@ -308,7 +308,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Next the function <code>get_rount(origin)</code> combined with a list comprehension creates the semi-random responses</p>
-<div id="daa8d1b4" class="cell" data-execution_count="5">
+<div id="137a2907" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>routes_col <span class="op">=</span> [get_route(o) <span class="cf">for</span> o <span class="kw">in</span> origin_col]</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Peek at the first ten respondents.</span></span>
@@ -484,7 +484,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/adamrossnelson\.github\.io\/airport-chi2\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
