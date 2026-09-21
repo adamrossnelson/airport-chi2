@@ -1,1 +1,12 @@
 /* css styles */
+
+.ring-green, .ring-red, .ring-blue, .ring-gold {
+  border-radius: 999px;
+  padding: 0 0.45em;
+  border: 3px solid;
+}
+.ring-green { border-color: #4caf50; }
+.ring-red   { border-color: #c62828; }
+.ring-blue  { border-color: #1e4e8c; }
+.ring-gold  { border-color: #f4b400; }
+
