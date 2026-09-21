@@ -802,12 +802,16 @@ Table&nbsp;6: Normalized errors, year one.
 <h2 class="anchored" data-anchor-id="step-3-add-them-up-to-get-the-chi-square-statistic">Step 3: Add them up to get the chi-square statistic</h2>
 <p>The chi-square statistic is the sum of all the normalized errors:</p>
 <p><span id="eq-chi2-sum"><span class="math display">\[
-\chi^2 = 0.344 + 1.706 + 6.240 + 0.029 + 0.467 + 0.287 + 0.099 + 0.080 + 1.538 + 0.552 + 7.481 + 0.012
+\begin{aligned}
+\chi^2 &amp;= 0.344 + 1.706 + 6.240 + 0.029 \\
+       &amp;\quad + 0.467 + 0.287 + 0.099 + 0.080 \\
+       &amp;\quad + 1.538 + 0.552 + 7.481 + 0.012
+\end{aligned}
 \tag{8}\]</span></span></p>
 <p><span id="eq-chi2-result"><span class="math display">\[
 \chi^2 = 18.8346
 \tag{9}\]</span></span></p>
-<p>That’s it. A few simple operations, repeated across the matrix, give us our chi-square statistic.</p>
+<p>That’s it. A few simple operations, repeated across the matrix, give us our chi-square statistic. This chi-square statistic is the statistic you will want to report in your manuscript, report, or results. You’ll also want to report the degrees of freedom (discussed below). Ultimately you’ll need this chi-square staistics in addition to the degrees of freedom to find the p-value which is what will inform your decision on whether to reject (or fail to reject) the null hypothesis. Typically, you will also report the p-value when reporting your results.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -856,11 +860,11 @@ df = (3 - 1) \times (4 - 1) = 2 \times 3 = 6
 </section>
 <section id="year-one-result" class="level3">
 <h3 class="anchored" data-anchor-id="year-one-result">Year one result</h3>
-<p>Here is the row for 6 degrees of freedom:</p>
+<p>Here is an excerpt of the reference table, showing degrees of freedom 4 through 8 so you can see how the critical values change from row to row. The row we actually need (6 degrees of freedom) and the column we land in are both circled:</p>
 <div id="tbl-df6-row" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-df6-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;7: Critical values for 6 degrees of freedom.
+Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row for 6 degrees of freedom highlighted.
 </figcaption>
 <div aria-describedby="tbl-df6-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -889,12 +893,38 @@ Table&nbsp;7: Critical values for 6 degrees of freedom.
 <th style="text-align: right;">0.05</th>
 <th style="text-align: right;">0.025</th>
 <th style="text-align: right;">0.01</th>
-<th style="text-align: right;">0.005</th>
+<th style="text-align: right;"><span class="ring-blue" aria-label="0.005 significance level column">0.005</span></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;"><strong>6</strong></td>
+<td style="text-align: right;"><strong>4</strong></td>
+<td style="text-align: right;">0.207</td>
+<td style="text-align: right;">0.297</td>
+<td style="text-align: right;">0.484</td>
+<td style="text-align: right;">0.711</td>
+<td style="text-align: right;">1.064</td>
+<td style="text-align: right;">7.779</td>
+<td style="text-align: right;">9.488</td>
+<td style="text-align: right;">11.143</td>
+<td style="text-align: right;">13.277</td>
+<td style="text-align: right;">14.860</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>5</strong></td>
+<td style="text-align: right;">0.412</td>
+<td style="text-align: right;">0.554</td>
+<td style="text-align: right;">0.831</td>
+<td style="text-align: right;">1.145</td>
+<td style="text-align: right;">1.610</td>
+<td style="text-align: right;">9.236</td>
+<td style="text-align: right;">11.070</td>
+<td style="text-align: right;">12.833</td>
+<td style="text-align: right;">15.086</td>
+<td style="text-align: right;">16.750</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="ring-green" aria-label="row for 6 degrees of freedom"><strong>6</strong></span></td>
 <td style="text-align: right;">0.676</td>
 <td style="text-align: right;">0.872</td>
 <td style="text-align: right;">1.237</td>
@@ -906,18 +936,68 @@ Table&nbsp;7: Critical values for 6 degrees of freedom.
 <td style="text-align: right;">16.812</td>
 <td style="text-align: right;"><span class="ring-blue" aria-label="critical value at the 0.005 significance level">18.548</span></td>
 </tr>
+<tr class="even">
+<td style="text-align: right;"><strong>7</strong></td>
+<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">1.239</td>
+<td style="text-align: right;">1.690</td>
+<td style="text-align: right;">2.167</td>
+<td style="text-align: right;">2.833</td>
+<td style="text-align: right;">12.017</td>
+<td style="text-align: right;">14.067</td>
+<td style="text-align: right;">16.013</td>
+<td style="text-align: right;">18.475</td>
+<td style="text-align: right;">20.278</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>8</strong></td>
+<td style="text-align: right;">1.344</td>
+<td style="text-align: right;">1.646</td>
+<td style="text-align: right;">2.180</td>
+<td style="text-align: right;">2.733</td>
+<td style="text-align: right;">3.490</td>
+<td style="text-align: right;">13.362</td>
+<td style="text-align: right;">15.507</td>
+<td style="text-align: right;">17.535</td>
+<td style="text-align: right;">20.090</td>
+<td style="text-align: right;">21.955</td>
+</tr>
 </tbody>
 </table>
 </div>
 </figure>
 </div>
-<p>Our chi-square statistic, <span class="ring-green" aria-label="calculated chi-square statistic">18.8346</span>, is larger than every number in the row, even 18.548 under the 0.005 column. That means our p-value is smaller than 0.005. (The exact p-value is 0.00445.)</p>
-<p><strong>Decision for year one:</strong> The p-value is less than 0.05, so we <strong>reject the null hypothesis</strong>. In year one, there is evidence of a relationship between math program and post-high-school outcome.</p>
+<p>Now walk through how to read this, one step at a time:</p>
+<ol type="1">
+<li><strong>Find the right row.</strong> Our test has 6 degrees of freedom, so every comparison happens along the circled row (ignore the rows for 4, 5, 7, and 8). We show these additional rows here only so you can see the pattern of critical values rising and falling with df.</li>
+<li><strong>Scan left to right along that row.</strong> The numbers in the row are the chi-square statistic you would need to reach to hit each p-value at the top of the table. As you move right, the p-values shrink (0.995 down to 0.005), and the critical values grow.</li>
+<li><strong>Place your own chi-square statistic among them.</strong> Our statistic is <span class="ring-green" aria-label="calculated chi-square statistic">18.8346</span>. Compare this 18.8346 value to each critical value in the row. iIt’s bigger than 16.812 (the value under the 0.01 column), and it’s also bigger than 18.548 (the value under the circled 0.005 column).</li>
+<li><strong>Notice it’s bigger than every value shown in the row.</strong> Because 18.8346 exceeds even the critical value in the smallest p-value column this table excerpt shows (0.005), our result is more extreme than anything this row directly reports.</li>
+<li><strong>Translate that into a p-value.</strong> A chi-square statistic that clears the 0.005 column’s critical value means the true p-value is smaller than 0.005. This is as precise as the printed table alone can get you. The tells you a ceiling (p &lt; 0.005), not an exact number.</li>
+<li><strong>Confirm with the exact value.</strong> Software can compute the precise p-value instead of just bounding it. Here, the exact p-value is 0.00445, which is indeed smaller than 0.005 (consistent with what the table told us).</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Finding exact p-values before software
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Today, getting an exact p-value is one function call away. That convenience is fairly new. For most of the history of this test, researchers had no computer to ask, so they relied on printed tables like the one above.</p>
+<p>Someone, working by hand or with an early mechanical calculator, had to work out the chi-square distribution’s shape for every degree of freedom and figure out exactly which value cut off the top 0.005 (or 0.05, or 0.10) of that distribution’s area. That’s a calculus problem, not an arithmetic problem, and it isn’t something you can do quickly with pencil and paper for even one value, let alone hundreds. So statisticians did that hard work once, wrote the answers down in reference tables like this one, and everyone else just looked up their result the same way you might look up a word in a dictionary rather than working out its definition from scratch every time.</p>
+<p>That’s also why these tables only show a handful of columns like 0.10, 0.05, 0.025, and 0.005, instead of every possible p-value. Each column had to be calculated and typeset by hand, so the table’s authors picked a small, useful set of round, commonly needed values and stopped there. If your chi-square statistic landed between two columns, or beyond the last one like ours did, the most honest answer available to a researcher in, say, 1950 was a range: “somewhere less than 0.005,” not “0.00445.” Getting the exact figure would have meant doing the underlying calculus yourself, which almost no one working on an applied research question would attempt today.</p>
+<p>This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. The table you used above to conclude “p is less than 0.005” is doing the exact same job those printed pages did decades ago. Today, software has just replaced the physical page and closed the gap between columns.</p>
+</div>
+</div>
+<p><strong>Decision for year one:</strong> The p-value is less than 0.05, so we reject the null hypothesis. In year one, there is evidence in favor of believing that there is a relationship between math program and post-high-school outcome. We have not proven that there is a relationship. We have not proven that one math program influences student outcomes. Merely we have rejected the null hypothesis that there is no relationship which then means we would tend to believe the alternate hypothesis.</p>
 </section>
 </section>
 <section id="your-turn-the-second-year" class="level2">
 <h2 class="anchored" data-anchor-id="your-turn-the-second-year">Your turn: The second year</h2>
-<p>Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called <strong>your turn</strong> and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.</p>
+<p>Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called your turn and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.</p>
 <p>Here again are the observed values for the second year:</p>
 <div id="tbl-year2-observed-again" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -992,7 +1072,7 @@ Table&nbsp;8: Observed counts, year two (repeated for the exercise).
 </ol>
 <p>When you have finished, expand the answers below to check your work.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1001,7 +1081,7 @@ Answers: year two expected values
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div id="tbl-year2-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -1057,7 +1137,7 @@ Table&nbsp;9: Expected values, year two.
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1066,7 +1146,7 @@ Answers: year two normalized errors
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div id="tbl-year2-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -1122,7 +1202,7 @@ Table&nbsp;10: Normalized errors, year two.
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1131,7 +1211,7 @@ Answers: year two chi-square, p-value, and decision
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <ul>
 <li>Chi-square statistic: <strong>5.8442</strong></li>
@@ -1158,6 +1238,13 @@ Answers: year two chi-square, p-value, and decision
 <pre><code>=CHISQ.DIST.RT(chi-square statistic, degrees of freedom)</code></pre>
 <p>For year one, <code>=CHISQ.DIST.RT(18.8346, 6)</code> returns 0.00445.</p>
 <p>In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.</p>
+<p>There are also websites that will find the p-value for free if you know the chi2 and df statistics.</p>
+<ul>
+<li><a href="https://es.wolframalpha.com/calculators/mathematics-statistics-probability-distributions-probabilities-for-the-chi-squared-distribution-calculator">Probabilities for the Chi‐Squared Distribution Calculator - WolframAplha.com</a></li>
+<li><a href="https://www.socscistatistics.com/pvalues/chidistribution/calculator/">Chi-Square to P-Value Calculator - SocialStatistics.com</a></li>
+<li><a href="https://www.graphpad.com/quickcalcs/pvalue1/">P Value Calculator - GraphPad.com</a></li>
+<li><a href="https://statcalc.net/p-value-from-chi-square-calculator/">P-Value From Chi-Square Calculator - StatCalc.net</a></li>
+</ul>
 </section>
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
@@ -1182,7 +1269,7 @@ Answers: year two chi-square, p-value, and decision
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"| df | "</span> <span class="op">+</span> <span class="st">" | "</span>.join(<span class="bu">str</span>(p) <span class="cf">for</span> p <span class="kw">in</span> p_values) <span class="op">+</span> <span class="st">" |"</span>)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"|---:|"</span> <span class="op">+</span> <span class="st">"---:|"</span> <span class="op">*</span> <span class="bu">len</span>(p_values))</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">31</span>):</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> df <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">21</span>):</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    row <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>stats<span class="sc">.</span>chi2<span class="sc">.</span>isf(p, df)<span class="sc">:.3f}</span><span class="ss">"</span> <span class="cf">for</span> p <span class="kw">in</span> p_values]</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"| **</span><span class="sc">{</span>df<span class="sc">}</span><span class="ss">** | "</span> <span class="op">+</span> <span class="st">" | "</span>.join(row) <span class="op">+</span> <span class="st">" |"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
@@ -1482,136 +1569,6 @@ Table&nbsp;11: Chi-square critical values by degrees of freedom.
 <td style="text-align: right;">34.170</td>
 <td style="text-align: right;">37.566</td>
 <td style="text-align: right;">39.997</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>21</strong></td>
-<td style="text-align: right;">8.034</td>
-<td style="text-align: right;">8.897</td>
-<td style="text-align: right;">10.283</td>
-<td style="text-align: right;">11.591</td>
-<td style="text-align: right;">13.240</td>
-<td style="text-align: right;">29.615</td>
-<td style="text-align: right;">32.671</td>
-<td style="text-align: right;">35.479</td>
-<td style="text-align: right;">38.932</td>
-<td style="text-align: right;">41.401</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>22</strong></td>
-<td style="text-align: right;">8.643</td>
-<td style="text-align: right;">9.542</td>
-<td style="text-align: right;">10.982</td>
-<td style="text-align: right;">12.338</td>
-<td style="text-align: right;">14.041</td>
-<td style="text-align: right;">30.813</td>
-<td style="text-align: right;">33.924</td>
-<td style="text-align: right;">36.781</td>
-<td style="text-align: right;">40.289</td>
-<td style="text-align: right;">42.796</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>23</strong></td>
-<td style="text-align: right;">9.260</td>
-<td style="text-align: right;">10.196</td>
-<td style="text-align: right;">11.689</td>
-<td style="text-align: right;">13.091</td>
-<td style="text-align: right;">14.848</td>
-<td style="text-align: right;">32.007</td>
-<td style="text-align: right;">35.172</td>
-<td style="text-align: right;">38.076</td>
-<td style="text-align: right;">41.638</td>
-<td style="text-align: right;">44.181</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>24</strong></td>
-<td style="text-align: right;">9.886</td>
-<td style="text-align: right;">10.856</td>
-<td style="text-align: right;">12.401</td>
-<td style="text-align: right;">13.848</td>
-<td style="text-align: right;">15.659</td>
-<td style="text-align: right;">33.196</td>
-<td style="text-align: right;">36.415</td>
-<td style="text-align: right;">39.364</td>
-<td style="text-align: right;">42.980</td>
-<td style="text-align: right;">45.559</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>25</strong></td>
-<td style="text-align: right;">10.520</td>
-<td style="text-align: right;">11.524</td>
-<td style="text-align: right;">13.120</td>
-<td style="text-align: right;">14.611</td>
-<td style="text-align: right;">16.473</td>
-<td style="text-align: right;">34.382</td>
-<td style="text-align: right;">37.652</td>
-<td style="text-align: right;">40.646</td>
-<td style="text-align: right;">44.314</td>
-<td style="text-align: right;">46.928</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>26</strong></td>
-<td style="text-align: right;">11.160</td>
-<td style="text-align: right;">12.198</td>
-<td style="text-align: right;">13.844</td>
-<td style="text-align: right;">15.379</td>
-<td style="text-align: right;">17.292</td>
-<td style="text-align: right;">35.563</td>
-<td style="text-align: right;">38.885</td>
-<td style="text-align: right;">41.923</td>
-<td style="text-align: right;">45.642</td>
-<td style="text-align: right;">48.290</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>27</strong></td>
-<td style="text-align: right;">11.808</td>
-<td style="text-align: right;">12.879</td>
-<td style="text-align: right;">14.573</td>
-<td style="text-align: right;">16.151</td>
-<td style="text-align: right;">18.114</td>
-<td style="text-align: right;">36.741</td>
-<td style="text-align: right;">40.113</td>
-<td style="text-align: right;">43.195</td>
-<td style="text-align: right;">46.963</td>
-<td style="text-align: right;">49.645</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>28</strong></td>
-<td style="text-align: right;">12.461</td>
-<td style="text-align: right;">13.565</td>
-<td style="text-align: right;">15.308</td>
-<td style="text-align: right;">16.928</td>
-<td style="text-align: right;">18.939</td>
-<td style="text-align: right;">37.916</td>
-<td style="text-align: right;">41.337</td>
-<td style="text-align: right;">44.461</td>
-<td style="text-align: right;">48.278</td>
-<td style="text-align: right;">50.993</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>29</strong></td>
-<td style="text-align: right;">13.121</td>
-<td style="text-align: right;">14.256</td>
-<td style="text-align: right;">16.047</td>
-<td style="text-align: right;">17.708</td>
-<td style="text-align: right;">19.768</td>
-<td style="text-align: right;">39.087</td>
-<td style="text-align: right;">42.557</td>
-<td style="text-align: right;">45.722</td>
-<td style="text-align: right;">49.588</td>
-<td style="text-align: right;">52.336</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>30</strong></td>
-<td style="text-align: right;">13.787</td>
-<td style="text-align: right;">14.953</td>
-<td style="text-align: right;">16.791</td>
-<td style="text-align: right;">18.493</td>
-<td style="text-align: right;">20.599</td>
-<td style="text-align: right;">40.256</td>
-<td style="text-align: right;">43.773</td>
-<td style="text-align: right;">46.979</td>
-<td style="text-align: right;">50.892</td>
-<td style="text-align: right;">53.672</td>
 </tr>
 </tbody>
 </table>
