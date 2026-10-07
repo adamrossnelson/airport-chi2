@@ -173,10 +173,29 @@ window.Quarto = {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link active" href="./chi2-example-tutorial.html" aria-current="page"> 
-<span class="menu-text">Chi-Square Tutorial</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chi-square-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chi-Square Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chi-square-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport.html">
+ <span class="dropdown-text">Airport Routes</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-python.html">
+ <span class="dropdown-text">Airport Routes in Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-pragmatic.html">
+ <span class="dropdown-text">Airport Routes, Pragmatic</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-math.html">
+ <span class="dropdown-text">Math Programs</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
@@ -229,7 +248,7 @@ window.Quarto = {
   <li><a href="#interpreting-the-two-years-together" id="toc-interpreting-the-two-years-together" class="nav-link" data-scroll-target="#interpreting-the-two-years-together">Interpreting the two years together</a></li>
   <li><a href="#other-ways-to-get-the-p-value" id="toc-other-ways-to-get-the-p-value" class="nav-link" data-scroll-target="#other-ways-to-get-the-p-value">Other ways to get the p-value</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#sec-chi2-table" id="toc-sec-chi2-table" class="nav-link" data-scroll-target="#sec-chi2-table">Reference: Chi-square critical values</a></li>
+  <li><a href="#sec-chi2-table" id="toc-sec-chi2-table" class="nav-link" data-scroll-target="#sec-chi2-table">Reference A: Chi-square critical values</a></li>
   </ul>
 </nav>
     </div>
@@ -295,26 +314,37 @@ window.Quarto = {
 <section id="the-big-idea" class="level2">
 <h2 class="anchored" data-anchor-id="the-big-idea">The big idea</h2>
 <p>Sometimes we want to know whether two categorical variables are related. A categorical variable is one whose values are categories rather than numbers, like a favorite color, a type of program, or a choice of route.</p>
-<div class="callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
+<i class="callout-icon"></i>
 </div>
-<div class="callout-body-container">
-
+<div class="callout-title-container flex-fill">
+Refresher: what is a categorical variable?
 </div>
 </div>
-</div>
-<p>The <strong>chi-square test of independence</strong> (chi rhymes with <em>sky</em>) helps us decide between two possibilities:</p>
+<div class="callout-body-container callout-body">
+<p>A categorical variable records which group an observation belongs to. You will also see these called nominal variables. The two terms are effectively interchangeable in scientific use. When the categories have a natural order (small, medium, large) some texts split them off as ordinal.</p>
+<p>Examples of categorical / nominal variables:</p>
 <ul>
-<li>The two variables are <strong>independent</strong>: knowing one cannot help you predict the other.</li>
-<li>The two variables are <strong>dependent</strong>: knowing one can help you predict the other.</li>
+<li>Favorite color: red, blue, green</li>
+<li>Math Program A, Math Program B, Math Program C</li>
+<li>Route to the airport: North Route, Isthmus Route, Southern Route</li>
+<li>Post-high-school outcome: work, tech school, college, military</li>
+</ul>
+<p>The chi-square test of independence expects two categorical variables. If one of your variables is a count or a continuous measurement, you would usually reach for a different tool (a t-test, ANOVA, correlation, or regression, depending on the question).</p>
+</div>
+</div>
+<p>The chi-square test of independence (chi rhymes with <em>sky</em>) helps us decide between two possibilities:</p>
+<ul>
+<li>The two variables are independent: Knowing one cannot help you predict the other.</li>
+<li>The two variables are dependent: Knowing one can help you predict the other.</li>
 </ul>
 </section>
 <section id="the-scenario" class="level2">
 <h2 class="anchored" data-anchor-id="the-scenario">The scenario</h2>
 <p>Imagine a school district is evaluating three math curriculums:</p>
-<p><strong>Math Program A</strong>, <strong>Math Program B</strong>, and <strong>Math Program C</strong>. Every student studied under exactly one of the three programs. For this lesson we will set aside <em>how</em> students ended up in each program.</p>
+<p>Math Program A, Math Program B, and Math Program C. Every student studied under exactly one of the three programs. For this lesson we will set aside how students ended up in each program.</p>
 <p>The district wants to know whether the math program is related to what students do after they graduate from high school. For each student, the district recorded one of four outcomes:</p>
 <ul>
 <li>Full-time work</li>
@@ -323,14 +353,14 @@ window.Quarto = {
 <li>Military service</li>
 </ul>
 <p>The district collected data for two years, with nearly 24,000 students in total.</p>
-<p><strong>Research question:</strong> Does the math program students studied relate to their post-high-school outcome?</p>
+<p><strong>Research question:</strong> Does the math program in which students studied, relate to their post-high-school outcome?</p>
 </section>
 <section id="the-hypotheses" class="level2">
 <h2 class="anchored" data-anchor-id="the-hypotheses">The hypotheses</h2>
 <p>Every statistical test begins with two competing statements called hypotheses.</p>
 <ul>
-<li><strong>Null hypothesis:</strong> There is no relationship. Post-high-school outcomes are independent of the math program.</li>
-<li><strong>Alternative hypothesis:</strong> There is a relationship. Post-high-school outcomes depend on the math program.</li>
+<li><strong>Null hypothesis:</strong> There is no relationship. Post-high-school outcomes are independent of the math program in which students were enrolled.</li>
+<li><strong>Alternative hypothesis:</strong> There is a relationship. Post-high-school outcomes depend on the math program in which students were enrolled.</li>
 </ul>
 <p>The test works by assuming the null hypothesis is true, and then asking how surprising our data would be if that were so. If the data would be very surprising, we reject the null hypothesis.</p>
 </section>
@@ -346,7 +376,7 @@ Table&nbsp;1: Observed counts, year one of the evaluation.
 <div aria-describedby="tbl-year1-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 28%">
 <col style="width: 14%">
 <col style="width: 14%">
 <col style="width: 14%">
@@ -409,7 +439,7 @@ Table&nbsp;2: Observed counts, year two of the evaluation.
 <div aria-describedby="tbl-year2-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 28%">
 <col style="width: 14%">
 <col style="width: 14%">
 <col style="width: 14%">
@@ -466,11 +496,11 @@ Table&nbsp;2: Observed counts, year two of the evaluation.
 </div>
 <p>The table has three kinds of totals, which you will use again and again:</p>
 <ul>
-<li>A <strong>row total</strong> (right-hand column) is the number of students in one math program.</li>
-<li>A <strong>column total</strong> (bottom row) is the number of students with one outcome.</li>
-<li>The <strong>grand total</strong> (bottom-right corner) is the number of students overall.</li>
+<li><strong>Row total:</strong> (right-hand column) is the number of students in one math program.</li>
+<li><strong>Column total:</strong> (bottom row) is the number of students with one outcome.</li>
+<li><strong>Grand total:</strong> (bottom-right corner) is the number of students overall.</li>
 </ul>
-<p>The counts in the table, the numbers we actually saw, are called the <strong>observed values</strong>.</p>
+<p>The counts in the table, the numbers we actually saw, are called the observed values.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -481,7 +511,7 @@ A word about matrices
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A grid of numbers arranged in rows and columns is called a <strong>matrix</strong>. The core of each table above, without the totals, is a matrix with 3 rows and 4 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation “for every cell in the matrix” is a pattern you will see often, especially once we move to Python.</p>
+<p>A grid of numbers arranged in rows and columns is called a matrix (sounds fancier than it is). The core of each table above, without the totals, is a matrix with 3 rows and 4 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation “for every cell in the matrix” is a pattern you will see often, especially once we move to Python.</p>
 </div>
 </div>
 </section>
@@ -493,18 +523,18 @@ A word about matrices
 \tag{1}\]</span></span></p>
 <p>In plain words, for each cell:</p>
 <ol type="1">
-<li>Subtract the <strong>expected</strong> value from the <strong>observed</strong> value.</li>
-<li><strong>Square</strong> that difference.</li>
-<li><strong>Divide</strong> by the expected value.</li>
+<li>Subtract the expected values (the values you will calculate from the observed data) from the observed value (the actual values in the observed table).</li>
+<li>Square that difference (the differences between observed and expected are known as the errors).</li>
+<li>Divide by the expected value for that cell.</li>
 </ol>
-<p>Then <strong>add up</strong> the results from every cell. The symbol Σ (sigma) means “add up,” and the little <em>i</em> simply means “for each cell, one at a time.”</p>
+<p>Then add up the results from every cell. The symbol Σ (sigma) means “add up,” and the little <em>i</em> simply means “for each cell, one at a time.”</p>
 <p>You already have the observed values. The next step is to find the expected values.</p>
 </section>
 <section id="step-1-calculate-the-expected-values" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-calculate-the-expected-values">Step 1: Calculate the expected values</h2>
 <section id="what-is-an-expected-value" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-an-expected-value">What is an expected value?</h3>
-<p>An expected value answers this question: <em>if the null hypothesis were true and there were no relationship, how many students would we expect to see in this cell?</em></p>
+<p>An expected value answers this question: If the null hypothesis were true and there were no relationship, how many students would we expect to see in this cell? The expected value tells us what the counts would be if the math program made no difference.</p>
 <p>If the math program made no difference, then each program would send students to each outcome in the same proportions as the group overall. The expected values capture exactly that.</p>
 </section>
 <section id="the-recipe" class="level3">
@@ -513,7 +543,7 @@ A word about matrices
 <p><span id="eq-expected"><span class="math display">\[
 Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
 \tag{2}\]</span></span></p>
-<p>In the examples below, the rings show which numbers to use:</p>
+<p>In the examples below, the colorful rings around numbers and figures help show which numbers to use, when, and how:</p>
 <ul>
 <li><span class="ring-green">cell</span> the cell you are working on</li>
 <li><span class="ring-red">row total</span> that cell’s row total</li>
@@ -526,12 +556,12 @@ Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
 <div id="tbl-ex1-rings" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex1-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Worked example 1 — Math Program A, Full-Time Work.
+Table&nbsp;3: Worked example 1 With Math Program A, Full-Time Work.
 </figcaption>
 <div aria-describedby="tbl-ex1-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 28%">
 <col style="width: 14%">
 <col style="width: 14%">
 <col style="width: 14%">
@@ -596,12 +626,12 @@ Expected = \frac{3867 \times 3875}{11919} = \frac{14{,}984{,}625}{11919} = 1257.
 <div id="tbl-ex2-rings" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex2-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Worked example 2 — Math Program B, Technical School.
+Table&nbsp;4: Worked example 2 With Math Program B, Technical School.
 </figcaption>
 <div aria-describedby="tbl-ex2-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 28%">
 <col style="width: 14%">
 <col style="width: 14%">
 <col style="width: 14%">
@@ -659,7 +689,7 @@ Table&nbsp;4: Worked example 2 — Math Program B, Technical School.
 <p><span id="eq-expected-ex2"><span class="math display">\[
 Expected = \frac{3951 \times 4664}{11919} = \frac{18{,}427{,}464}{11919} = 1546.058
 \tag{4}\]</span></span></p>
-<p>Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell.</p>
+<p>Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell through the matrix.</p>
 </section>
 <section id="the-full-matrix-of-expected-values" class="level3">
 <h3 class="anchored" data-anchor-id="the-full-matrix-of-expected-values">The full matrix of expected values</h3>
@@ -672,7 +702,7 @@ Table&nbsp;5: Expected values, year one.
 <div aria-describedby="tbl-year1-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 32%">
+<col style="width: 33%">
 <col style="width: 16%">
 <col style="width: 16%">
 <col style="width: 16%">
@@ -735,8 +765,8 @@ Check your work
 <p><span id="eq-normerror"><span class="math display">\[
 \frac{(Observed - Expected)^2}{Expected}
 \tag{5}\]</span></span></p>
-<p>This quantity is sometimes called a <strong>normalized error</strong>. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.</p>
-<p>Notice that the expected matrix is used twice here: once to find the difference, and again to divide.</p>
+<p>This quantity is sometimes called a normalized error. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.</p>
+<p>Notice that the expected matrix is used twice here: Once to find the difference, and again to divide.</p>
 <section id="worked-example-math-program-a-full-time-work" class="level3">
 <h3 class="anchored" data-anchor-id="worked-example-math-program-a-full-time-work">Worked example: Math Program A, Full-Time Work</h3>
 <ul>
@@ -764,11 +794,11 @@ Table&nbsp;6: Normalized errors, year one.
 <div aria-describedby="tbl-year1-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
+<col style="width: 41%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -839,7 +869,7 @@ Rounding
 </section>
 <section id="step-4-find-the-degrees-of-freedom" class="level2">
 <h2 class="anchored" data-anchor-id="step-4-find-the-degrees-of-freedom">Step 4: Find the degrees of freedom</h2>
-<p>To turn the chi-square statistic into a p-value, we need one more number, called the <strong>degrees of freedom</strong> (often written <em>df</em>). For a chi-square test of independence:</p>
+<p>To turn the chi-square statistic into a p-value, we need one more number, called the degrees of freedom (often written as <em>df</em>). For a chi-square test of independence:</p>
 <p><span id="eq-df"><span class="math display">\[
 df = (\text{number of rows} - 1) \times (\text{number of columns} - 1)
 \tag{10}\]</span></span></p>
@@ -852,11 +882,11 @@ df = (3 - 1) \times (4 - 1) = 2 \times 3 = 6
 <h2 class="anchored" data-anchor-id="step-5-find-the-p-value-and-make-a-decision">Step 5: Find the p-value and make a decision</h2>
 <section id="what-a-p-value-tells-you" class="level3">
 <h3 class="anchored" data-anchor-id="what-a-p-value-tells-you">What a p-value tells you</h3>
-<p>The <strong>p-value</strong> is the probability of getting results as extreme as ours, or more extreme, <em>if the null hypothesis were true</em>. A small p-value means our data would be surprising in a world with no relationship.</p>
-<p>We compare the p-value to a cutoff called the <strong>significance level</strong>. The conventional significance level is <strong>0.05</strong>.</p>
+<p>The p-value is the probability of getting results as extreme as ours, or more extreme, if the null hypothesis were true. A small p-value means our data would be surprising in a world with no relationship.</p>
+<p>We compare the p-value to a cutoff called the significance level. The conventional significance level is 0.05.</p>
 <ul>
-<li>If the p-value is <strong>less than 0.05</strong>, we <strong>reject the null hypothesis</strong> and conclude there is a relationship.</li>
-<li>If the p-value is <strong>0.05 or greater</strong>, we <strong>fail to reject the null hypothesis</strong>. We do not have enough evidence of a relationship.</li>
+<li>If the p-value is less than 0.05, we reject the null hypothesis and conclude there is a relationship.</li>
+<li>If the p-value is 0.05 or greater, we fail to reject the null hypothesis. We do not have enough evidence of a relationship.</li>
 </ul>
 </section>
 <section id="using-the-table" class="level3">
@@ -1003,12 +1033,17 @@ Finding exact p-values before software
 <p>This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. The table you used above to conclude “p is less than 0.005” is doing the exact same job those printed pages did decades ago. Today, software has just replaced the physical page and closed the gap between columns.</p>
 </div>
 </div>
-<p><strong>Decision for year one:</strong> The p-value is less than 0.05, so we reject the null hypothesis. In year one, there is evidence in favor of believing that there is a relationship between math program and post-high-school outcome. We have not proven that there is a relationship. We have not proven that one math program influences student outcomes. Merely we have rejected the null hypothesis that there is no relationship which then means we would tend to believe the alternate hypothesis.</p>
+<p><strong>Decision for year one:</strong> The p-value is less than 0.05, so we reject the null hypothesis. In year one, there is evidence in favor of believing that there is a relationship between the math program in which students participated and their post-high-school outcomes. We have not proven that there is a relationship. We have not proven that one math program influences student outcomes. Merely we have rejected the null hypothesis that there is no relationship, which then means we would tend to believe the alternate hypothesis.</p>
+<p>Reminder on the null and alternative hypotheses:</p>
+<ul>
+<li><strong>Null hypothesis (<span class="math inline">\(H_0\)</span>):</strong> There is no relationship between the math program in which students participated and their post-high-school outcomes.</li>
+<li><strong>Alternative hypothesis (<span class="math inline">\(H_1\)</span>):</strong> There is a relationship between the math program in which students participated and their post-high-school outcomes.</li>
+</ul>
 </section>
 </section>
 <section id="your-turn-the-second-year" class="level2">
 <h2 class="anchored" data-anchor-id="your-turn-the-second-year">Your turn: The second year</h2>
-<p>Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called your turn and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.</p>
+<p>Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called your turn and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you. Otherwise use pencil and a fresh sheet of paper to work through the problem.</p>
 <p>Here again are the observed values for the second year:</p>
 <div id="tbl-year2-observed-again" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -1018,7 +1053,7 @@ Table&nbsp;8: Observed counts, year two (repeated for the exercise).
 <div aria-describedby="tbl-year2-observed-again-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 28%">
 <col style="width: 14%">
 <col style="width: 14%">
 <col style="width: 14%">
@@ -1083,7 +1118,7 @@ Table&nbsp;8: Observed counts, year two (repeated for the exercise).
 </ol>
 <p>When you have finished, expand the answers below to check your work.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1092,7 +1127,7 @@ Answers: year two expected values
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div id="tbl-year2-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -1102,7 +1137,7 @@ Table&nbsp;9: Expected values, year two.
 <div aria-describedby="tbl-year2-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 32%">
+<col style="width: 33%">
 <col style="width: 16%">
 <col style="width: 16%">
 <col style="width: 16%">
@@ -1148,7 +1183,7 @@ Table&nbsp;9: Expected values, year two.
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1157,7 +1192,7 @@ Answers: year two normalized errors
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <div id="tbl-year2-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
@@ -1167,11 +1202,11 @@ Table&nbsp;10: Normalized errors, year two.
 <div aria-describedby="tbl-year2-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
+<col style="width: 41%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1213,7 +1248,7 @@ Table&nbsp;10: Normalized errors, year two.
 </div>
 </div>
 <div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1222,14 +1257,14 @@ Answers: year two chi-square, p-value, and decision
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <ul>
-<li>Chi-square statistic: <strong>5.8442</strong></li>
-<li>Degrees of freedom: (3 − 1) × (4 − 1) = <strong>6</strong></li>
-<li>In the row for 6 degrees of freedom, 5.8442 falls between 2.204 (the 0.90 column) and 10.645 (the 0.10 column). So the p-value is <strong>between 0.10 and 0.90</strong>. (The exact p-value is 0.441.)</li>
+<li>Chi-square statistic: 5.8442</li>
+<li>Degrees of freedom: (3 − 1) × (4 − 1) = 6</li>
+<li>In the row for 6 degrees of freedom, 5.8442 falls between 2.204 (the 0.90 column) and 10.645 (the 0.10 column). So the p-value is between 0.10 and 0.90. (The exact p-value is 0.441.)</li>
 </ul>
-<p><strong>Decision for year two:</strong> The p-value is greater than 0.05, so we <strong>fail to reject the null hypothesis</strong>. In year two, we do not have evidence of a relationship between math program and post-high-school outcome.</p>
+<p><strong>Decision for year two:</strong> The p-value is greater than 0.05, so we fail to reject the null hypothesis. In year two, we do not have evidence of a relationship between math program and post-high-school outcome.</p>
 </div>
 </div>
 </div>
@@ -1237,15 +1272,15 @@ Answers: year two chi-square, p-value, and decision
 <section id="interpreting-the-two-years-together" class="level2">
 <h2 class="anchored" data-anchor-id="interpreting-the-two-years-together">Interpreting the two years together</h2>
 <p>The two years led to different conclusions. Year one showed evidence of a relationship, and year two did not. This is a useful reminder that one test on one set of data is not the final word. Results can differ from sample to sample, which is why repeating a study matters.</p>
-<p>In a scenario such as this we might attribute the first year result as something that is known as an “implementation bump” or “implementation dip” which is a common result in observational field studies. Keep in mind, too, that a chi-square test tells you whether two variables are <em>related</em>. It does not, on its own, tell you that one <em>caused</em> the other.</p>
-<p>Remember also that we set aside how students were placed into each program. If, for example, students who already planned on college tended to choose Program C, that alone could create a relationship in the data.</p>
+<p>In a scenario such as this we might attribute the first year result as something that is known as an “implementation bump” or “implementation dip” which is a common result in observational field studies, and also in randomized controlled trial field studies where initial enthusiasm or novelty affects participation. Keep in mind, too, that a chi-square test tells you whether two variables are related. It does not, on its own, tell you that one variable caused the other.</p>
+<p>Remember also that we set aside how students were placed into each program. If, for example, the selection mechanism related to the outcome then it would confound the results and make it difficult to determine the true effect of the program on post-high-school outcomes. This is why random assignment is so valuable when feasible.</p>
 </section>
 <section id="other-ways-to-get-the-p-value" class="level2">
 <h2 class="anchored" data-anchor-id="other-ways-to-get-the-p-value">Other ways to get the p-value</h2>
 <p>The table gives you a range. Software can give you the exact p-value. In Excel, there are two functions for this.</p>
-<p><strong><code>CHISQ.TEST</code></strong> compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:</p>
+<p>Excel’s function <code>CHISQ.TEST()</code> compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:</p>
 <pre><code>=CHISQ.TEST(observed range, expected range)</code></pre>
-<p><strong><code>CHISQ.DIST.RT</code></strong> converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:</p>
+<p>Excel’s function <code>CHISQ.DIST.RT()</code> converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:</p>
 <pre><code>=CHISQ.DIST.RT(chi-square statistic, degrees of freedom)</code></pre>
 <p>For year one, <code>=CHISQ.DIST.RT(18.8346, 6)</code> returns 0.00445.</p>
 <p>In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.</p>
@@ -1271,7 +1306,7 @@ Answers: year two chi-square, p-value, and decision
 </ol>
 </section>
 <section id="sec-chi2-table" class="level2">
-<h2 class="anchored" data-anchor-id="sec-chi2-table">Reference: Chi-square critical values</h2>
+<h2 class="anchored" data-anchor-id="sec-chi2-table">Reference A: Chi-square critical values</h2>
 <p>Find the row for your degrees of freedom. The column headings are right-tail p-values. If your chi-square statistic falls between two numbers in the row, your p-value falls between the two column headings.</p>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use scipy to create a table of p-values based on critical values and df</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
@@ -1681,7 +1716,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/adamrossnelson\.github\.io\/airport-chi2\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

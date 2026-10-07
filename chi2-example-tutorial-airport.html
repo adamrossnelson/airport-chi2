@@ -8,9 +8,9 @@
 
 <meta name="author" content="Adam Ross Nelson">
 <meta name="dcterms.date" content="2026-09-29">
-<meta name="description" content="A step-by-step, self-paced walkthrough of the chi-square test of independence, using a fictional evaluation of three math programs. Includes a reference table of chi-square critical values.">
+<meta name="description" content="A step-by-step, self-paced walkthrough of the chi-square test of independence, using a fictional survey of Southwestern Madison travelers and their routes to the airport. Includes a reference table of chi-square critical values.">
 
-<title>Chi-Square Test of Independence: A Worked Example (Math Program Evaluation) – Using Python To Conduct Chi2 Analyses</title>
+<title>Chi-Square Test of Independence: A Worked Example (Airport Routes) – Using Python To Conduct Chi2 Analyses</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -173,10 +173,29 @@ window.Quarto = {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link active" href="./chi2-example-tutorial.html" aria-current="page"> 
-<span class="menu-text">Chi-Square Tutorial</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chi-square-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chi-Square Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chi-square-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport.html">
+ <span class="dropdown-text">Airport Routes</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-python.html">
+ <span class="dropdown-text">Airport Routes in Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-pragmatic.html">
+ <span class="dropdown-text">Airport Routes, Pragmatic</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-math.html">
+ <span class="dropdown-text">Math Programs</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
@@ -207,14 +226,14 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#what-is-an-expected-value" id="toc-what-is-an-expected-value" class="nav-link" data-scroll-target="#what-is-an-expected-value">What is an expected value?</a></li>
   <li><a href="#the-recipe" id="toc-the-recipe" class="nav-link" data-scroll-target="#the-recipe">The recipe</a></li>
-  <li><a href="#worked-example-1-math-program-a-full-time-work" id="toc-worked-example-1-math-program-a-full-time-work" class="nav-link" data-scroll-target="#worked-example-1-math-program-a-full-time-work">Worked example 1: Math Program A, Full-Time Work</a></li>
-  <li><a href="#worked-example-2-math-program-b-technical-school" id="toc-worked-example-2-math-program-b-technical-school" class="nav-link" data-scroll-target="#worked-example-2-math-program-b-technical-school">Worked example 2: Math Program B, Technical School</a></li>
+  <li><a href="#worked-example-1-madison-native-north" id="toc-worked-example-1-madison-native-north" class="nav-link" data-scroll-target="#worked-example-1-madison-native-north">Worked example 1: Madison native, North</a></li>
+  <li><a href="#worked-example-2-greater-madison-native-isthmus" id="toc-worked-example-2-greater-madison-native-isthmus" class="nav-link" data-scroll-target="#worked-example-2-greater-madison-native-isthmus">Worked example 2: Greater Madison native, Isthmus</a></li>
   <li><a href="#the-full-matrix-of-expected-values" id="toc-the-full-matrix-of-expected-values" class="nav-link" data-scroll-target="#the-full-matrix-of-expected-values">The full matrix of expected values</a></li>
   </ul></li>
   <li><a href="#step-2-calculate-the-normalized-errors" id="toc-step-2-calculate-the-normalized-errors" class="nav-link" data-scroll-target="#step-2-calculate-the-normalized-errors">Step 2: Calculate the normalized errors</a>
   <ul class="collapse">
-  <li><a href="#worked-example-math-program-a-full-time-work" id="toc-worked-example-math-program-a-full-time-work" class="nav-link" data-scroll-target="#worked-example-math-program-a-full-time-work">Worked example: Math Program A, Full-Time Work</a></li>
-  <li><a href="#a-second-example-math-program-b-technical-school" id="toc-a-second-example-math-program-b-technical-school" class="nav-link" data-scroll-target="#a-second-example-math-program-b-technical-school">A second example: Math Program B, Technical School</a></li>
+  <li><a href="#worked-example-madison-native-north" id="toc-worked-example-madison-native-north" class="nav-link" data-scroll-target="#worked-example-madison-native-north">Worked example: Madison native, North</a></li>
+  <li><a href="#a-second-example-greater-madison-native-isthmus" id="toc-a-second-example-greater-madison-native-isthmus" class="nav-link" data-scroll-target="#a-second-example-greater-madison-native-isthmus">A second example: Greater Madison native, Isthmus</a></li>
   <li><a href="#the-full-matrix-of-normalized-errors" id="toc-the-full-matrix-of-normalized-errors" class="nav-link" data-scroll-target="#the-full-matrix-of-normalized-errors">The full matrix of normalized errors</a></li>
   </ul></li>
   <li><a href="#step-3-add-them-up-to-get-the-chi-square-statistic" id="toc-step-3-add-them-up-to-get-the-chi-square-statistic" class="nav-link" data-scroll-target="#step-3-add-them-up-to-get-the-chi-square-statistic">Step 3: Add them up to get the chi-square statistic</a></li>
@@ -223,13 +242,13 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#what-a-p-value-tells-you" id="toc-what-a-p-value-tells-you" class="nav-link" data-scroll-target="#what-a-p-value-tells-you">What a p-value tells you</a></li>
   <li><a href="#using-the-table" id="toc-using-the-table" class="nav-link" data-scroll-target="#using-the-table">Using the table</a></li>
-  <li><a href="#year-one-result" id="toc-year-one-result" class="nav-link" data-scroll-target="#year-one-result">Year one result</a></li>
+  <li><a href="#the-result" id="toc-the-result" class="nav-link" data-scroll-target="#the-result">The result</a></li>
   </ul></li>
-  <li><a href="#your-turn-the-second-year" id="toc-your-turn-the-second-year" class="nav-link" data-scroll-target="#your-turn-the-second-year">Your turn: The second year</a></li>
-  <li><a href="#interpreting-the-two-years-together" id="toc-interpreting-the-two-years-together" class="nav-link" data-scroll-target="#interpreting-the-two-years-together">Interpreting the two years together</a></li>
+  <li><a href="#your-turn-combining-the-native-groups" id="toc-your-turn-combining-the-native-groups" class="nav-link" data-scroll-target="#your-turn-combining-the-native-groups">Your turn: Combining the native groups</a></li>
+  <li><a href="#interpreting-the-two-analyses-together" id="toc-interpreting-the-two-analyses-together" class="nav-link" data-scroll-target="#interpreting-the-two-analyses-together">Interpreting the two analyses together</a></li>
   <li><a href="#other-ways-to-get-the-p-value" id="toc-other-ways-to-get-the-p-value" class="nav-link" data-scroll-target="#other-ways-to-get-the-p-value">Other ways to get the p-value</a></li>
   <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#sec-chi2-table" id="toc-sec-chi2-table" class="nav-link" data-scroll-target="#sec-chi2-table">Reference: Chi-square critical values</a></li>
+  <li><a href="#sec-chi2-table" id="toc-sec-chi2-table" class="nav-link" data-scroll-target="#sec-chi2-table">Reference A: Chi-square critical values</a></li>
   </ul>
 </nav>
     </div>
@@ -238,7 +257,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Chi-Square Test of Independence: A Worked Example (Math Program Evaluation)</h1>
+<h1 class="title">Chi-Square Test of Independence: A Worked Example (Airport Routes)</h1>
 <p class="subtitle lead">A self-paced lesson on testing whether two categorical variables are related</p>
   <div class="quarto-categories">
     <div class="quarto-category">chi-square</div>
@@ -249,7 +268,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    <p>A step-by-step, self-paced walkthrough of the chi-square test of independence, using a fictional evaluation of three math programs. Includes a reference table of chi-square critical values.</p>
+    <p>A step-by-step, self-paced walkthrough of the chi-square test of independence, using a fictional survey of Southwestern Madison travelers and their routes to the airport. Includes a reference table of chi-square critical values.</p>
   </div>
 </div>
 
@@ -285,7 +304,7 @@ window.Quarto = {
 <li>Explain what a chi-square test of independence is used for.</li>
 <li>State a null hypothesis and an alternative hypothesis for a chi-square test.</li>
 <li>Calculate expected values from a table of counts.</li>
-<li>Calculate the chi-square statistic, one cell at a time, pencile and paper-style.</li>
+<li>Calculate the chi-square statistic, one cell at a time, pencil and paper-style.</li>
 <li>Find the degrees of freedom and use a table to estimate a p-value.</li>
 <li>Decide whether to reject or fail to reject the null hypothesis.</li>
 </ul>
@@ -295,169 +314,108 @@ window.Quarto = {
 <section id="the-big-idea" class="level2">
 <h2 class="anchored" data-anchor-id="the-big-idea">The big idea</h2>
 <p>Sometimes we want to know whether two categorical variables are related. A categorical variable is one whose values are categories rather than numbers, like a favorite color, a type of program, or a choice of route.</p>
-<div class="callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
+<i class="callout-icon"></i>
 </div>
-<div class="callout-body-container">
-
+<div class="callout-title-container flex-fill">
+Refresher: what is a categorical variable?
 </div>
 </div>
-</div>
-<p>The <strong>chi-square test of independence</strong> (chi rhymes with <em>sky</em>) helps us decide between two possibilities:</p>
+<div class="callout-body-container callout-body">
+<p>A categorical variable records which group an observation belongs to. You will also see these called nominal variables. The two terms are effectively interchangeable in scientific use. When the categories have a natural order (small, medium, large) some texts split them off as ordinal.</p>
+<p>Examples of categorical / nominal variables:</p>
 <ul>
-<li>The two variables are <strong>independent</strong>: knowing one cannot help you predict the other.</li>
-<li>The two variables are <strong>dependent</strong>: knowing one can help you predict the other.</li>
+<li>Favorite color: red, blue, green</li>
+<li>Route to the airport: North, Isthmus, South</li>
+<li>Where a person is from: Madison native, Greater Madison native, Transplant</li>
+<li>Post-high-school outcome: work, tech school, college, military</li>
+</ul>
+<p>The chi-square test of independence expects two categorical variables. If one of your variables is a count or a continuous measurement, you would usually reach for a different tool (a t-test, ANOVA, correlation, or regression, depending on the question).</p>
+</div>
+</div>
+<p>The chi-square test of independence (chi rhymes with <em>sky</em>) helps us decide between two possibilities:</p>
+<ul>
+<li>The two variables are independent: Knowing one cannot help you predict the other.</li>
+<li>The two variables are dependent: Knowing one can help you predict the other.</li>
 </ul>
 </section>
 <section id="the-scenario" class="level2">
 <h2 class="anchored" data-anchor-id="the-scenario">The scenario</h2>
-<p>Imagine a school district is evaluating three math curriculums:</p>
-<p><strong>Math Program A</strong>, <strong>Math Program B</strong>, and <strong>Math Program C</strong>. Every student studied under exactly one of the three programs. For this lesson we will set aside <em>how</em> students ended up in each program.</p>
-<p>The district wants to know whether the math program is related to what students do after they graduate from high school. For each student, the district recorded one of four outcomes:</p>
+<p>Imagine the airport commissioned a survey of travelers who live in the Southwestern part of the Madison, Wisconsin metropolitan area. (The data are fictional. They were created on the <a href="./data-maker.html">Data Maker</a> page and can be previewed on the <a href="./data-preview.html">Data Preview</a> page.) The survey asked each respondent two questions.</p>
+<p>Which route do you usually take to the airport?</p>
 <ul>
-<li>Full-time work</li>
-<li>Technical school</li>
-<li>College or university</li>
-<li>Military service</li>
+<li>North: around the top of Lake Mendota</li>
+<li>Isthmus: straight through downtown on the isthmus</li>
+<li>South: east on the Beltline, then north to the airport</li>
 </ul>
-<p>The district collected data for two years, with nearly 24,000 students in total.</p>
-<p><strong>Research question:</strong> Does the math program students studied relate to their post-high-school outcome?</p>
+<p>Where are you from?</p>
+<ul>
+<li>Madison native</li>
+<li>Greater Madison native</li>
+<li>Transplant: raised somewhere else, moved to Madison for work or other reasons</li>
+</ul>
+<p>Every respondent gave exactly one answer to each question. There were 300 respondents in total.</p>
+<p><strong>Research question:</strong> Does the route people take to the airport relate to where they are from?</p>
 </section>
 <section id="the-hypotheses" class="level2">
 <h2 class="anchored" data-anchor-id="the-hypotheses">The hypotheses</h2>
 <p>Every statistical test begins with two competing statements called hypotheses.</p>
 <ul>
-<li><strong>Null hypothesis:</strong> There is no relationship. Post-high-school outcomes are independent of the math program.</li>
-<li><strong>Alternative hypothesis:</strong> There is a relationship. Post-high-school outcomes depend on the math program.</li>
+<li><strong>Null hypothesis:</strong> There is no relationship. The route a traveler takes to the airport is independent of where the traveler is from.</li>
+<li><strong>Alternative hypothesis:</strong> There is a relationship. The route a traveler takes to the airport depends on where the traveler is from.</li>
 </ul>
 <p>The test works by assuming the null hypothesis is true, and then asking how surprising our data would be if that were so. If the data would be very surprising, we reject the null hypothesis.</p>
 </section>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data">The data</h2>
-<p>The data is summarized in a <strong>cross tabulation</strong>, which is a table of counts. Each row is a math program and each column is an outcome. Each box in the table is called a <strong>cell</strong>, and each cell counts the students who share that row <em>and</em> that column.</p>
-<p>For example, in the first year, 1,278 students studied Math Program A and then went on to full-time work.</p>
-<div id="tbl-year1-observed" class="quarto-float quarto-figure quarto-figure-center anchored">
+<p>The data is summarized in a <strong>cross tabulation</strong>, which is a table of counts. Each row is an origin and each column is a route. Each box in the table is called a <strong>cell</strong>, and each cell counts the respondents who share that row <em>and</em> that column.</p>
+<p>For example, 18 respondents were Madison natives who usually take the North route.</p>
+<div id="tbl-observed" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year1-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Observed counts, year one of the evaluation.
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Observed counts, airport route survey.
 </figcaption>
-<div aria-describedby="tbl-year1-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 27%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 15%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 <th style="text-align: right;"><strong>TOTAL</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">1278</td>
-<td style="text-align: right;">1564</td>
-<td style="text-align: right;">682</td>
-<td style="text-align: right;">343</td>
-<td style="text-align: right;">3867</td>
+<td><strong>Madison native</strong></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">111</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1309</td>
-<td style="text-align: right;">1525</td>
-<td style="text-align: right;">758</td>
-<td style="text-align: right;">359</td>
-<td style="text-align: right;">3951</td>
+<td><strong>Greater Madison native</strong></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">72</td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1288</td>
-<td style="text-align: right;">1575</td>
-<td style="text-align: right;">873</td>
-<td style="text-align: right;">365</td>
-<td style="text-align: right;">4101</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">117</td>
 </tr>
 <tr class="even">
 <td><strong>TOTAL</strong></td>
-<td style="text-align: right;">3875</td>
-<td style="text-align: right;">4664</td>
-<td style="text-align: right;">2313</td>
-<td style="text-align: right;">1067</td>
-<td style="text-align: right;">11,919</td>
-</tr>
-</tbody>
-</table>
-</div>
-</figure>
-</div>
-<div id="tbl-year2-observed" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year2-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Observed counts, year two of the evaluation.
-</figcaption>
-<div aria-describedby="tbl-year2-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 27%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 15%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
-<th style="text-align: right;"><strong>TOTAL</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">1219</td>
-<td style="text-align: right;">1636</td>
-<td style="text-align: right;">683</td>
-<td style="text-align: right;">375</td>
-<td style="text-align: right;">3913</td>
-</tr>
-<tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1245</td>
-<td style="text-align: right;">1577</td>
-<td style="text-align: right;">745</td>
-<td style="text-align: right;">389</td>
-<td style="text-align: right;">3956</td>
-</tr>
-<tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1229</td>
-<td style="text-align: right;">1640</td>
-<td style="text-align: right;">765</td>
-<td style="text-align: right;">379</td>
-<td style="text-align: right;">4013</td>
-</tr>
-<tr class="even">
-<td><strong>TOTAL</strong></td>
-<td style="text-align: right;">3693</td>
-<td style="text-align: right;">4853</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">1143</td>
-<td style="text-align: right;">11,882</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">300</td>
 </tr>
 </tbody>
 </table>
@@ -466,11 +424,11 @@ Table&nbsp;2: Observed counts, year two of the evaluation.
 </div>
 <p>The table has three kinds of totals, which you will use again and again:</p>
 <ul>
-<li>A <strong>row total</strong> (right-hand column) is the number of students in one math program.</li>
-<li>A <strong>column total</strong> (bottom row) is the number of students with one outcome.</li>
-<li>The <strong>grand total</strong> (bottom-right corner) is the number of students overall.</li>
+<li><strong>Row total:</strong> (right-hand column) is the number of respondents from one origin.</li>
+<li><strong>Column total:</strong> (bottom row) is the number of respondents who take one route.</li>
+<li><strong>Grand total:</strong> (bottom-right corner) is the number of respondents overall.</li>
 </ul>
-<p>The counts in the table, the numbers we actually saw, are called the <strong>observed values</strong>.</p>
+<p>The counts in the table, the numbers we actually saw, are called the observed values.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -481,7 +439,7 @@ A word about matrices
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>A grid of numbers arranged in rows and columns is called a <strong>matrix</strong>. The core of each table above, without the totals, is a matrix with 3 rows and 4 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation “for every cell in the matrix” is a pattern you will see often, especially once we move to Python.</p>
+<p>A grid of numbers arranged in rows and columns is called a matrix (sounds fancier than it is). The core of the table above, without the totals, is a matrix with 3 rows and 3 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation “for every cell in the matrix” is a pattern you will see often, especially once we move to Python.</p>
 </div>
 </div>
 </section>
@@ -493,19 +451,19 @@ A word about matrices
 \tag{1}\]</span></span></p>
 <p>In plain words, for each cell:</p>
 <ol type="1">
-<li>Subtract the <strong>expected</strong> value from the <strong>observed</strong> value.</li>
-<li><strong>Square</strong> that difference.</li>
-<li><strong>Divide</strong> by the expected value.</li>
+<li>Subtract the expected values (the values you will calculate from the observed data) from the observed value (the actual values in the observed table).</li>
+<li>Square that difference (the differences between observed and expected are known as the errors).</li>
+<li>Divide by the expected value for that cell.</li>
 </ol>
-<p>Then <strong>add up</strong> the results from every cell. The symbol Σ (sigma) means “add up,” and the little <em>i</em> simply means “for each cell, one at a time.”</p>
+<p>Then add up the results from every cell. The symbol Σ (sigma) means “add up,” and the little <em>i</em> simply means “for each cell, one at a time.”</p>
 <p>You already have the observed values. The next step is to find the expected values.</p>
 </section>
 <section id="step-1-calculate-the-expected-values" class="level2">
 <h2 class="anchored" data-anchor-id="step-1-calculate-the-expected-values">Step 1: Calculate the expected values</h2>
 <section id="what-is-an-expected-value" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-an-expected-value">What is an expected value?</h3>
-<p>An expected value answers this question: <em>if the null hypothesis were true and there were no relationship, how many students would we expect to see in this cell?</em></p>
-<p>If the math program made no difference, then each program would send students to each outcome in the same proportions as the group overall. The expected values capture exactly that.</p>
+<p>An expected value answers this question: If the null hypothesis were true and there were no relationship, how many respondents would we expect to see in this cell? The expected value tells us what the counts would be if where a person is from made no difference to the route they take.</p>
+<p>If origin made no difference, then each origin group would use each route in the same proportions as the group overall. The expected values capture exactly that.</p>
 </section>
 <section id="the-recipe" class="level3">
 <h3 class="anchored" data-anchor-id="the-recipe">The recipe</h3>
@@ -513,7 +471,7 @@ A word about matrices
 <p><span id="eq-expected"><span class="math display">\[
 Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
 \tag{2}\]</span></span></p>
-<p>In the examples below, the rings show which numbers to use:</p>
+<p>In the examples below, the colorful rings around numbers and figures help show which numbers to use, when, and how:</p>
 <ul>
 <li><span class="ring-green">cell</span> the cell you are working on</li>
 <li><span class="ring-red">row total</span> that cell’s row total</li>
@@ -521,65 +479,59 @@ Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
 <li><span class="ring-gold">grand total</span> the grand total</li>
 </ul>
 </section>
-<section id="worked-example-1-math-program-a-full-time-work" class="level3">
-<h3 class="anchored" data-anchor-id="worked-example-1-math-program-a-full-time-work">Worked example 1: Math Program A, Full-Time Work</h3>
+<section id="worked-example-1-madison-native-north" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-1-madison-native-north">Worked example 1: Madison native, North</h3>
 <div id="tbl-ex1-rings" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex1-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Worked example 1 — Math Program A, Full-Time Work.
+Table&nbsp;2: Worked example 1 with Madison native, North.
 </figcaption>
 <div aria-describedby="tbl-ex1-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
+<col style="width: 41%">
+<col style="width: 12%">
 <col style="width: 15%">
+<col style="width: 12%">
+<col style="width: 18%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 <th style="text-align: right;"><strong>TOTAL</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;"><span class="ring-green" aria-label="cell value">1278</span></td>
-<td style="text-align: right;">1564</td>
-<td style="text-align: right;">682</td>
-<td style="text-align: right;">343</td>
-<td style="text-align: right;"><span class="ring-red" aria-label="row total">3867</span></td>
+<td><strong>Madison native</strong></td>
+<td style="text-align: right;"><span class="ring-green" aria-label="cell value">18</span></td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;"><span class="ring-red" aria-label="row total">111</span></td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1309</td>
-<td style="text-align: right;">1525</td>
-<td style="text-align: right;">758</td>
-<td style="text-align: right;">359</td>
-<td style="text-align: right;">3951</td>
+<td><strong>Greater Madison native</strong></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">72</td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1288</td>
-<td style="text-align: right;">1575</td>
-<td style="text-align: right;">873</td>
-<td style="text-align: right;">365</td>
-<td style="text-align: right;">4101</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">117</td>
 </tr>
 <tr class="even">
 <td><strong>TOTAL</strong></td>
-<td style="text-align: right;"><span class="ring-blue" aria-label="column total">3875</span></td>
-<td style="text-align: right;">4664</td>
-<td style="text-align: right;">2313</td>
-<td style="text-align: right;">1067</td>
-<td style="text-align: right;"><span class="ring-gold" aria-label="grand total">11,919</span></td>
+<td style="text-align: right;"><span class="ring-blue" aria-label="column total">40</span></td>
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;"><span class="ring-gold" aria-label="grand total">300</span></td>
 </tr>
 </tbody>
 </table>
@@ -587,69 +539,63 @@ Table&nbsp;3: Worked example 1 — Math Program A, Full-Time Work.
 </figure>
 </div>
 <p><span id="eq-expected-ex1"><span class="math display">\[
-Expected = \frac{3867 \times 3875}{11919} = \frac{14{,}984{,}625}{11919} = 1257.205
+Expected = \frac{111 \times 40}{300} = \frac{4{,}440}{300} = 14.8
 \tag{3}\]</span></span></p>
-<p>If there were no relationship, we would expect about 1,257 students in this cell. We actually observed 1,278.</p>
+<p>If there were no relationship, we would expect about 14.8 respondents in this cell. We actually observed 18.</p>
 </section>
-<section id="worked-example-2-math-program-b-technical-school" class="level3">
-<h3 class="anchored" data-anchor-id="worked-example-2-math-program-b-technical-school">Worked example 2: Math Program B, Technical School</h3>
+<section id="worked-example-2-greater-madison-native-isthmus" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-2-greater-madison-native-isthmus">Worked example 2: Greater Madison native, Isthmus</h3>
 <div id="tbl-ex2-rings" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-ex2-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Worked example 2 — Math Program B, Technical School.
+Table&nbsp;3: Worked example 2 with Greater Madison native, Isthmus.
 </figcaption>
 <div aria-describedby="tbl-ex2-rings-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 27%">
+<col style="width: 45%">
+<col style="width: 11%">
 <col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 15%">
+<col style="width: 11%">
+<col style="width: 17%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 <th style="text-align: right;"><strong>TOTAL</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">1278</td>
-<td style="text-align: right;">1564</td>
-<td style="text-align: right;">682</td>
-<td style="text-align: right;">343</td>
-<td style="text-align: right;">3867</td>
+<td><strong>Madison native</strong></td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">111</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1309</td>
-<td style="text-align: right;"><span class="ring-green" aria-label="cell value">1525</span></td>
-<td style="text-align: right;">758</td>
-<td style="text-align: right;">359</td>
-<td style="text-align: right;"><span class="ring-red" aria-label="row total">3951</span></td>
+<td><strong>Greater Madison native</strong></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;"><span class="ring-green" aria-label="cell value">12</span></td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;"><span class="ring-red" aria-label="row total">72</span></td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1288</td>
-<td style="text-align: right;">1575</td>
-<td style="text-align: right;">873</td>
-<td style="text-align: right;">365</td>
-<td style="text-align: right;">4101</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">117</td>
 </tr>
 <tr class="even">
 <td><strong>TOTAL</strong></td>
-<td style="text-align: right;">3875</td>
-<td style="text-align: right;"><span class="ring-blue" aria-label="column total">4664</span></td>
-<td style="text-align: right;">2313</td>
-<td style="text-align: right;">1067</td>
-<td style="text-align: right;"><span class="ring-gold" aria-label="grand total">11,919</span></td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;"><span class="ring-blue" aria-label="column total">107</span></td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;"><span class="ring-gold" aria-label="grand total">300</span></td>
 </tr>
 </tbody>
 </table>
@@ -657,57 +603,52 @@ Table&nbsp;4: Worked example 2 — Math Program B, Technical School.
 </figure>
 </div>
 <p><span id="eq-expected-ex2"><span class="math display">\[
-Expected = \frac{3951 \times 4664}{11919} = \frac{18{,}427{,}464}{11919} = 1546.058
+Expected = \frac{72 \times 107}{300} = \frac{7{,}704}{300} = 25.68
 \tag{4}\]</span></span></p>
-<p>Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell.</p>
+<p>Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell through the matrix.</p>
 </section>
 <section id="the-full-matrix-of-expected-values" class="level3">
 <h3 class="anchored" data-anchor-id="the-full-matrix-of-expected-values">The full matrix of expected values</h3>
-<p>Repeat the recipe for all 12 cells to get the expected values for the first year.</p>
-<div id="tbl-year1-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
+<p>Repeat the recipe for all 9 cells to get the expected values.</p>
+<div id="tbl-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year1-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;5: Expected values, year one.
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Expected values.
 </figcaption>
-<div aria-describedby="tbl-year1-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
+<col style="width: 54%">
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;"><span class="ring-green" aria-label="expected value for the highlighted cell">1257.205</span></td>
-<td style="text-align: right;">1513.188</td>
-<td style="text-align: right;">750.430</td>
-<td style="text-align: right;">346.177</td>
+<td><strong>Madison native</strong></td>
+<td style="text-align: right;"><span class="ring-green" aria-label="expected value for the highlighted cell">14.80</span></td>
+<td style="text-align: right;">39.59</td>
+<td style="text-align: right;">56.61</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1284.514</td>
-<td style="text-align: right;"><span class="ring-green" aria-label="expected value for the highlighted cell">1546.058</span></td>
-<td style="text-align: right;">766.731</td>
-<td style="text-align: right;">353.697</td>
+<td><strong>Greater Madison native</strong></td>
+<td style="text-align: right;">9.60</td>
+<td style="text-align: right;"><span class="ring-green" aria-label="expected value for the highlighted cell">25.68</span></td>
+<td style="text-align: right;">36.72</td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1333.281</td>
-<td style="text-align: right;">1604.754</td>
-<td style="text-align: right;">795.840</td>
-<td style="text-align: right;">367.125</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">15.60</td>
+<td style="text-align: right;">41.73</td>
+<td style="text-align: right;">59.67</td>
 </tr>
 </tbody>
 </table>
@@ -724,7 +665,7 @@ Check your work
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The expected values in each row should add up to that row’s total, and the expected values in each column should add up to that column’s total. For example, 1257.205 + 1513.188 + 750.430 + 346.177 = 3867, which is the row total for Math Program A. If your sums do not match, look for an arithmetic slip.</p>
+<p>The expected values in each row should add up to that row’s total, and the expected values in each column should add up to that column’s total. For example, 14.80 + 39.59 + 56.61 = 111, which is the row total for Madison native. If your sums do not match, look for an arithmetic slip.</p>
 </div>
 </div>
 </section>
@@ -735,78 +676,67 @@ Check your work
 <p><span id="eq-normerror"><span class="math display">\[
 \frac{(Observed - Expected)^2}{Expected}
 \tag{5}\]</span></span></p>
-<p>This quantity is sometimes called a <strong>normalized error</strong>. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.</p>
-<p>Notice that the expected matrix is used twice here: once to find the difference, and again to divide.</p>
-<section id="worked-example-math-program-a-full-time-work" class="level3">
-<h3 class="anchored" data-anchor-id="worked-example-math-program-a-full-time-work">Worked example: Math Program A, Full-Time Work</h3>
+<p>This quantity is sometimes called a normalized error. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.</p>
+<p>Notice that the expected matrix is used twice here: Once to find the difference, and again to divide.</p>
+<section id="worked-example-madison-native-north" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-madison-native-north">Worked example: Madison native, North</h3>
 <ul>
-<li>Observed: <span class="ring-red" aria-label="observed value">1278</span> (from <a href="#tbl-year1-observed" class="quarto-xref">Table&nbsp;1</a>)</li>
-<li>Expected: <span class="ring-blue" aria-label="expected value">1257.205</span> (from <a href="#tbl-year1-expected" class="quarto-xref">Table&nbsp;5</a>)</li>
+<li>Observed: <span class="ring-red" aria-label="observed value">18</span> (from <a href="#tbl-observed" class="quarto-xref">Table&nbsp;1</a>)</li>
+<li>Expected: <span class="ring-blue" aria-label="expected value">14.80</span> (from <a href="#tbl-expected" class="quarto-xref">Table&nbsp;4</a>)</li>
 </ul>
 <p><span id="eq-normerror-ex1"><span class="math display">\[
-\frac{(1278 - 1257.205)^2}{1257.205} = \frac{(20.795)^2}{1257.205} = \frac{432.432}{1257.205} = 0.344
+\frac{(18 - 14.8)^2}{14.8} = \frac{(3.2)^2}{14.8} = \frac{10.24}{14.8} = 0.692
 \tag{6}\]</span></span></p>
 </section>
-<section id="a-second-example-math-program-b-technical-school" class="level3">
-<h3 class="anchored" data-anchor-id="a-second-example-math-program-b-technical-school">A second example: Math Program B, Technical School</h3>
+<section id="a-second-example-greater-madison-native-isthmus" class="level3">
+<h3 class="anchored" data-anchor-id="a-second-example-greater-madison-native-isthmus">A second example: Greater Madison native, Isthmus</h3>
 <p><span id="eq-normerror-ex2"><span class="math display">\[
-\frac{(1525 - 1546.058)^2}{1546.058} = \frac{(-21.058)^2}{1546.058} = \frac{443.439}{1546.058} = 0.287
+\frac{(12 - 25.68)^2}{25.68} = \frac{(-13.68)^2}{25.68} = \frac{187.142}{25.68} = 7.287
 \tag{7}\]</span></span></p>
 <p>Here the difference was negative, but squaring it made the result positive.</p>
 </section>
 <section id="the-full-matrix-of-normalized-errors" class="level3">
 <h3 class="anchored" data-anchor-id="the-full-matrix-of-normalized-errors">The full matrix of normalized errors</h3>
-<div id="tbl-year1-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year1-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;6: Normalized errors, year one.
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Normalized errors.
 </figcaption>
-<div aria-describedby="tbl-year1-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">0.344</td>
-<td style="text-align: right;">1.706</td>
-<td style="text-align: right;">6.240</td>
-<td style="text-align: right;">0.029</td>
+<td><strong>Madison native</strong></td>
+<td style="text-align: right;">0.692</td>
+<td style="text-align: right;">12.685</td>
+<td style="text-align: right;">11.586</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">0.467</td>
-<td style="text-align: right;">0.287</td>
-<td style="text-align: right;">0.099</td>
-<td style="text-align: right;">0.080</td>
+<td><strong>Greater Madison native</strong></td>
+<td style="text-align: right;">0.037</td>
+<td style="text-align: right;">7.287</td>
+<td style="text-align: right;">5.553</td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1.538</td>
-<td style="text-align: right;">0.552</td>
-<td style="text-align: right;">7.481</td>
-<td style="text-align: right;">0.012</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">0.433</td>
+<td style="text-align: right;">1.826</td>
+<td style="text-align: right;">2.151</td>
 </tr>
 </tbody>
 </table>
 </div>
 </figure>
 </div>
-<p>Large numbers point to cells where the observed count is far from what we would expect under no relationship. In year one, the two biggest contributors are in the College/University column: Program A sent fewer students to college than expected (682 versus about 750), and Program C sent more (873 versus about 796).</p>
+<p>Large numbers point to cells where the observed count is far from what we would expect under no relationship. The biggest contributors are in the Isthmus and South columns for Madison natives: Madison natives took the Isthmus route more than expected (62 versus about 40) and the South route less than expected (31 versus about 57). Greater Madison natives took the Isthmus route less than expected (12 versus about 26) and the South route more than expected (51 versus about 37).</p>
 </section>
 </section>
 <section id="step-3-add-them-up-to-get-the-chi-square-statistic" class="level2">
@@ -814,15 +744,15 @@ Table&nbsp;6: Normalized errors, year one.
 <p>The chi-square statistic is the sum of all the normalized errors:</p>
 <p><span id="eq-chi2-sum"><span class="math display">\[
 \begin{aligned}
-\chi^2 &amp;= 0.344 + 1.706 + 6.240 + 0.029 \\
-       &amp;\quad + 0.467 + 0.287 + 0.099 + 0.080 \\
-       &amp;\quad + 1.538 + 0.552 + 7.481 + 0.012
+\chi^2 &amp;= 0.692 + 12.685 + 11.586 \\
+       &amp;\quad + 0.037 + 7.287 + 5.553 \\
+       &amp;\quad + 0.433 + 1.826 + 2.151
 \end{aligned}
 \tag{8}\]</span></span></p>
 <p><span id="eq-chi2-result"><span class="math display">\[
-\chi^2 = 18.8346
+\chi^2 = 42.2522
 \tag{9}\]</span></span></p>
-<p>That’s it. A few simple operations, repeated across the matrix, give us our chi-square statistic. This chi-square statistic is the statistic you will want to report in your manuscript, report, or results. You’ll also want to report the degrees of freedom (discussed below). Ultimately you’ll need this chi-square staistics in addition to the degrees of freedom to find the p-value which is what will inform your decision on whether to reject (or fail to reject) the null hypothesis. Typically, you will also report the p-value when reporting your results.</p>
+<p>That’s it. A few simple operations, repeated across the matrix, give us our chi-square statistic. This chi-square statistic is the statistic you will want to report in your manuscript, report, or results. You’ll also want to report the degrees of freedom (discussed below). Ultimately you’ll need this chi-square statistic in addition to the degrees of freedom to find the p-value, which is what will inform your decision on whether to reject (or fail to reject) the null hypothesis. Typically, you will also report the p-value when reporting your results.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -833,35 +763,35 @@ Rounding
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If you add the rounded values above, you get 18.835. The value 18.8346 comes from carrying all the decimal places through each step. Small differences in the last decimal place are normal and do not change the conclusion.</p>
+<p>If you add the rounded values above, you get 42.250. The value 42.2522 comes from carrying all the decimal places through each step. Small differences in the last decimal place are normal and do not change the conclusion.</p>
 </div>
 </div>
 </section>
 <section id="step-4-find-the-degrees-of-freedom" class="level2">
 <h2 class="anchored" data-anchor-id="step-4-find-the-degrees-of-freedom">Step 4: Find the degrees of freedom</h2>
-<p>To turn the chi-square statistic into a p-value, we need one more number, called the <strong>degrees of freedom</strong> (often written <em>df</em>). For a chi-square test of independence:</p>
+<p>To turn the chi-square statistic into a p-value, we need one more number, called the degrees of freedom (often written as <em>df</em>). For a chi-square test of independence:</p>
 <p><span id="eq-df"><span class="math display">\[
 df = (\text{number of rows} - 1) \times (\text{number of columns} - 1)
 \tag{10}\]</span></span></p>
-<p>Count only the rows and columns of categories, not the totals. Our table has 3 math programs and 4 outcomes:</p>
+<p>Count only the rows and columns of categories, not the totals. Our table has 3 origins and 3 routes:</p>
 <p><span id="eq-df-calc"><span class="math display">\[
-df = (3 - 1) \times (4 - 1) = 2 \times 3 = 6
+df = (3 - 1) \times (3 - 1) = 2 \times 2 = 4
 \tag{11}\]</span></span></p>
 </section>
 <section id="step-5-find-the-p-value-and-make-a-decision" class="level2">
 <h2 class="anchored" data-anchor-id="step-5-find-the-p-value-and-make-a-decision">Step 5: Find the p-value and make a decision</h2>
 <section id="what-a-p-value-tells-you" class="level3">
 <h3 class="anchored" data-anchor-id="what-a-p-value-tells-you">What a p-value tells you</h3>
-<p>The <strong>p-value</strong> is the probability of getting results as extreme as ours, or more extreme, <em>if the null hypothesis were true</em>. A small p-value means our data would be surprising in a world with no relationship.</p>
-<p>We compare the p-value to a cutoff called the <strong>significance level</strong>. The conventional significance level is <strong>0.05</strong>.</p>
+<p>The p-value is the probability of getting results as extreme as ours, or more extreme, if the null hypothesis were true. A small p-value means our data would be surprising in a world with no relationship.</p>
+<p>We compare the p-value to a cutoff called the significance level. The conventional significance level is 0.05.</p>
 <ul>
-<li>If the p-value is <strong>less than 0.05</strong>, we <strong>reject the null hypothesis</strong> and conclude there is a relationship.</li>
-<li>If the p-value is <strong>0.05 or greater</strong>, we <strong>fail to reject the null hypothesis</strong>. We do not have enough evidence of a relationship.</li>
+<li>If the p-value is less than 0.05, we reject the null hypothesis and conclude there is a relationship.</li>
+<li>If the p-value is 0.05 or greater, we fail to reject the null hypothesis. We do not have enough evidence of a relationship.</li>
 </ul>
 </section>
 <section id="using-the-table" class="level3">
 <h3 class="anchored" data-anchor-id="using-the-table">Using the table</h3>
-<p>The chi-square reference table (<a href="#tbl-chi2-critical" class="quarto-xref">Table&nbsp;11</a>) at the end of this lesson lets you estimate the p-value. It is a <strong>right-tailed</strong> table: the column headings are p-values, and the numbers inside the table are chi-square statistics. Bigger chi-square statistics sit farther to the right, where the p-values are smaller.</p>
+<p>The chi-square reference table (<a href="#tbl-chi2-critical" class="quarto-xref">Table&nbsp;10</a>) at the end of this lesson lets you estimate the p-value. It is a <strong>right-tailed</strong> table: the column headings are p-values, and the numbers inside the table are chi-square statistics. Bigger chi-square statistics sit farther to the right, where the p-values are smaller.</p>
 <p>To use it:</p>
 <ol type="1">
 <li>Find the row that matches your degrees of freedom.</li>
@@ -869,15 +799,15 @@ df = (3 - 1) \times (4 - 1) = 2 \times 3 = 6
 <li>Read the p-values at the top of those two columns. Your p-value lies between them.</li>
 </ol>
 </section>
-<section id="year-one-result" class="level3">
-<h3 class="anchored" data-anchor-id="year-one-result">Year one result</h3>
-<p>Here is an excerpt of the reference table, showing degrees of freedom 4 through 8 so you can see how the critical values change from row to row. The row we actually need (6 degrees of freedom) and the column we land in are both circled:</p>
-<div id="tbl-df6-row" class="quarto-float quarto-figure quarto-figure-center anchored">
+<section id="the-result" class="level3">
+<h3 class="anchored" data-anchor-id="the-result">The result</h3>
+<p>Here is an excerpt of the reference table, showing degrees of freedom 3 through 5 so you can see how the critical values change from row to row. The row we actually need (4 degrees of freedom) and the column we land beyond are both circled:</p>
+<div id="tbl-df4-row" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-df6-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row for 6 degrees of freedom highlighted.
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-df4-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Critical values for degrees of freedom 3 through 5, with the row for 4 degrees of freedom highlighted.
 </figcaption>
-<div aria-describedby="tbl-df6-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-df4-row-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
 <colgroup>
 <col style="width: 9%">
@@ -909,7 +839,20 @@ Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row f
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;"><strong>4</strong></td>
+<td style="text-align: right;"><strong>3</strong></td>
+<td style="text-align: right;">0.072</td>
+<td style="text-align: right;">0.115</td>
+<td style="text-align: right;">0.216</td>
+<td style="text-align: right;">0.352</td>
+<td style="text-align: right;">0.584</td>
+<td style="text-align: right;">6.251</td>
+<td style="text-align: right;">7.815</td>
+<td style="text-align: right;">9.348</td>
+<td style="text-align: right;">11.345</td>
+<td style="text-align: right;">12.838</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="ring-green" aria-label="row for 4 degrees of freedom"><strong>4</strong></span></td>
 <td style="text-align: right;">0.207</td>
 <td style="text-align: right;">0.297</td>
 <td style="text-align: right;">0.484</td>
@@ -919,9 +862,9 @@ Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row f
 <td style="text-align: right;">9.488</td>
 <td style="text-align: right;">11.143</td>
 <td style="text-align: right;">13.277</td>
-<td style="text-align: right;">14.860</td>
+<td style="text-align: right;"><span class="ring-blue" aria-label="critical value at the 0.005 significance level">14.860</span></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: right;"><strong>5</strong></td>
 <td style="text-align: right;">0.412</td>
 <td style="text-align: right;">0.554</td>
@@ -934,45 +877,6 @@ Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row f
 <td style="text-align: right;">15.086</td>
 <td style="text-align: right;">16.750</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;"><span class="ring-green" aria-label="row for 6 degrees of freedom"><strong>6</strong></span></td>
-<td style="text-align: right;">0.676</td>
-<td style="text-align: right;">0.872</td>
-<td style="text-align: right;">1.237</td>
-<td style="text-align: right;">1.635</td>
-<td style="text-align: right;">2.204</td>
-<td style="text-align: right;">10.645</td>
-<td style="text-align: right;">12.592</td>
-<td style="text-align: right;">14.449</td>
-<td style="text-align: right;">16.812</td>
-<td style="text-align: right;"><span class="ring-blue" aria-label="critical value at the 0.005 significance level">18.548</span></td>
-</tr>
-<tr class="even">
-<td style="text-align: right;"><strong>7</strong></td>
-<td style="text-align: right;">0.989</td>
-<td style="text-align: right;">1.239</td>
-<td style="text-align: right;">1.690</td>
-<td style="text-align: right;">2.167</td>
-<td style="text-align: right;">2.833</td>
-<td style="text-align: right;">12.017</td>
-<td style="text-align: right;">14.067</td>
-<td style="text-align: right;">16.013</td>
-<td style="text-align: right;">18.475</td>
-<td style="text-align: right;">20.278</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;"><strong>8</strong></td>
-<td style="text-align: right;">1.344</td>
-<td style="text-align: right;">1.646</td>
-<td style="text-align: right;">2.180</td>
-<td style="text-align: right;">2.733</td>
-<td style="text-align: right;">3.490</td>
-<td style="text-align: right;">13.362</td>
-<td style="text-align: right;">15.507</td>
-<td style="text-align: right;">17.535</td>
-<td style="text-align: right;">20.090</td>
-<td style="text-align: right;">21.955</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -980,12 +884,12 @@ Table&nbsp;7: Critical values for degrees of freedom 4 through 8, with the row f
 </div>
 <p>Now walk through how to read this, one step at a time:</p>
 <ol type="1">
-<li><strong>Find the right row.</strong> Our test has 6 degrees of freedom, so every comparison happens along the circled row (ignore the rows for 4, 5, 7, and 8). We show these additional rows here only so you can see the pattern of critical values rising and falling with df.</li>
+<li><strong>Find the right row.</strong> Our test has 4 degrees of freedom, so every comparison happens along the circled row (ignore the rows for 3 and 5). We show these additional rows here only so you can see the pattern of critical values rising with df.</li>
 <li><strong>Scan left to right along that row.</strong> The numbers in the row are the chi-square statistic you would need to reach to hit each p-value at the top of the table. As you move right, the p-values shrink (0.995 down to 0.005), and the critical values grow.</li>
-<li><strong>Place your own chi-square statistic among them.</strong> Our statistic is <span class="ring-green" aria-label="calculated chi-square statistic">18.8346</span>. Compare this 18.8346 value to each critical value in the row. iIt’s bigger than 16.812 (the value under the 0.01 column), and it’s also bigger than 18.548 (the value under the circled 0.005 column).</li>
-<li><strong>Notice it’s bigger than every value shown in the row.</strong> Because 18.8346 exceeds even the critical value in the smallest p-value column this table excerpt shows (0.005), our result is more extreme than anything this row directly reports.</li>
-<li><strong>Translate that into a p-value.</strong> A chi-square statistic that clears the 0.005 column’s critical value means the true p-value is smaller than 0.005. This is as precise as the printed table alone can get you. The tells you a ceiling (p &lt; 0.005), not an exact number.</li>
-<li><strong>Confirm with the exact value.</strong> Software can compute the precise p-value instead of just bounding it. Here, the exact p-value is 0.00445, which is indeed smaller than 0.005 (consistent with what the table told us).</li>
+<li><strong>Place your own chi-square statistic among them.</strong> Our statistic is <span class="ring-green" aria-label="calculated chi-square statistic">42.2522</span>. Compare this value to each critical value in the row. It’s bigger than 13.277 (the value under the 0.01 column), and it’s also bigger than 14.860 (the value under the circled 0.005 column).</li>
+<li><strong>Notice it’s bigger than every value in the row.</strong> Because 42.2522 exceeds even the critical value in the smallest p-value column the table shows (0.005), our result is more extreme than anything this row directly reports.</li>
+<li><strong>Translate that into a p-value.</strong> A chi-square statistic that clears the 0.005 column’s critical value means the true p-value is smaller than 0.005. This is as precise as the printed table alone can get you. It tells you a ceiling (p &lt; 0.005), not an exact number.</li>
+<li><strong>Confirm with the exact value.</strong> Software can compute the precise p-value instead of just bounding it. Here, the exact p-value is about 0.000000015 (1.5 × 10⁻⁸), which is indeed smaller than 0.005 (consistent with what the table told us).</li>
 </ol>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -999,74 +903,59 @@ Finding exact p-values before software
 <div class="callout-body-container callout-body">
 <p>Today, getting an exact p-value is one function call away. That convenience is fairly new. For most of the history of this test, researchers had no computer to ask, so they relied on printed tables like the one above.</p>
 <p>Someone, working by hand or with an early mechanical calculator, had to work out the chi-square distribution’s shape for every degree of freedom and figure out exactly which value cut off the top 0.005 (or 0.05, or 0.10) of that distribution’s area. That’s a calculus problem, not an arithmetic problem, and it isn’t something you can do quickly with pencil and paper for even one value, let alone hundreds. So statisticians did that hard work once, wrote the answers down in reference tables like this one, and everyone else just looked up their result the same way you might look up a word in a dictionary rather than working out its definition from scratch every time.</p>
-<p>That’s also why these tables only show a handful of columns like 0.10, 0.05, 0.025, and 0.005, instead of every possible p-value. Each column had to be calculated and typeset by hand, so the table’s authors picked a small, useful set of round, commonly needed values and stopped there. If your chi-square statistic landed between two columns, or beyond the last one like ours did, the most honest answer available to a researcher in, say, 1950 was a range: “somewhere less than 0.005,” not “0.00445.” Getting the exact figure would have meant doing the underlying calculus yourself, which almost no one working on an applied research question would attempt today.</p>
-<p>This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. The table you used above to conclude “p is less than 0.005” is doing the exact same job those printed pages did decades ago. Today, software has just replaced the physical page and closed the gap between columns.</p>
+<p>That’s also why these tables only show a handful of columns like 0.10, 0.05, 0.025, and 0.005, instead of every possible p-value. If your chi-square statistic landed between two columns, or beyond the last one like ours did, the most honest answer available to a researcher in, say, 1950 was a range: “somewhere less than 0.005,” not an exact figure.</p>
+<p>This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. Today, software has just replaced the physical page and closed the gap between columns.</p>
 </div>
 </div>
-<p><strong>Decision for year one:</strong> The p-value is less than 0.05, so we reject the null hypothesis. In year one, there is evidence in favor of believing that there is a relationship between math program and post-high-school outcome. We have not proven that there is a relationship. We have not proven that one math program influences student outcomes. Merely we have rejected the null hypothesis that there is no relationship which then means we would tend to believe the alternate hypothesis.</p>
+<p><strong>Decision:</strong> The p-value is less than 0.05, so we reject the null hypothesis. There is evidence in favor of believing that there is a relationship between where travelers are from and the route they take to the airport. We have not proven that there is a relationship. We have not proven that being from a certain place causes a traveler to choose a certain route. Merely we have rejected the null hypothesis that there is no relationship, which then means we would tend to believe the alternative hypothesis.</p>
+<p>Reminder on the null and alternative hypotheses:</p>
+<ul>
+<li><strong>Null hypothesis (<span class="math inline">\(H_0\)</span>):</strong> There is no relationship between where travelers are from and the route they take to the airport.</li>
+<li><strong>Alternative hypothesis (<span class="math inline">\(H_1\)</span>):</strong> There is a relationship between where travelers are from and the route they take to the airport.</li>
+</ul>
 </section>
 </section>
-<section id="your-turn-the-second-year" class="level2">
-<h2 class="anchored" data-anchor-id="your-turn-the-second-year">Your turn: The second year</h2>
-<p>Now try the full process yourself using the year two data. If you have the course Excel workbook, open the tab called your turn and fill in the yellow-shaded sections. Once you enter the normalized errors, the sheet will calculate the chi-square statistic and p-values for you.</p>
-<p>Here again are the observed values for the second year:</p>
-<div id="tbl-year2-observed-again" class="quarto-float quarto-figure quarto-figure-center anchored">
+<section id="your-turn-combining-the-native-groups" class="level2">
+<h2 class="anchored" data-anchor-id="your-turn-combining-the-native-groups">Your turn: Combining the native groups</h2>
+<p>Now try the full process yourself with a slightly different question. Suppose the airport does not care about the difference between Madison natives and Greater Madison natives. Combine those two rows into a single “Native” row and ask: <strong>Does the route travelers take relate to whether they are a native or a transplant?</strong></p>
+<p>Here are the observed values for the combined table. (Add the Madison native and Greater Madison native rows from <a href="#tbl-observed" class="quarto-xref">Table&nbsp;1</a> to check the first row.)</p>
+<div id="tbl-combined-observed" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year2-observed-again-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;8: Observed counts, year two (repeated for the exercise).
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-combined-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Observed counts, natives combined.
 </figcaption>
-<div aria-describedby="tbl-year2-observed-again-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-combined-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 27%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 15%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 <th style="text-align: right;"><strong>TOTAL</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">1219</td>
-<td style="text-align: right;">1636</td>
-<td style="text-align: right;">683</td>
-<td style="text-align: right;">375</td>
-<td style="text-align: right;">3913</td>
+<td><strong>Native</strong></td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">183</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1245</td>
-<td style="text-align: right;">1577</td>
-<td style="text-align: right;">745</td>
-<td style="text-align: right;">389</td>
-<td style="text-align: right;">3956</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">117</td>
 </tr>
 <tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1229</td>
-<td style="text-align: right;">1640</td>
-<td style="text-align: right;">765</td>
-<td style="text-align: right;">379</td>
-<td style="text-align: right;">4013</td>
-</tr>
-<tr class="even">
 <td><strong>TOTAL</strong></td>
-<td style="text-align: right;">3693</td>
-<td style="text-align: right;">4853</td>
-<td style="text-align: right;">2193</td>
-<td style="text-align: right;">1143</td>
-<td style="text-align: right;">11,882</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">107</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">300</td>
 </tr>
 </tbody>
 </table>
@@ -1075,134 +964,52 @@ Table&nbsp;8: Observed counts, year two (repeated for the exercise).
 </div>
 <p>Work through each step:</p>
 <ol type="1">
-<li>Calculate the 12 expected values (row total × column total ÷ grand total).</li>
-<li>Calculate the 12 normalized errors ((observed − expected)² ÷ expected).</li>
+<li>Calculate the 6 expected values (row total × column total ÷ grand total).</li>
+<li>Calculate the 6 normalized errors ((observed − expected)² ÷ expected).</li>
 <li>Add up the normalized errors to get the chi-square statistic.</li>
-<li>Find the degrees of freedom.</li>
+<li>Find the degrees of freedom. (Careful: the table now has only 2 rows.)</li>
 <li>Use the table to estimate the p-value and make a decision.</li>
 </ol>
 <p>When you have finished, expand the answers below to check your work.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Answers: year two expected values
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<div id="tbl-year2-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year2-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;9: Expected values, year two.
-</figcaption>
-<div aria-describedby="tbl-year2-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">1216.185</td>
-<td style="text-align: right;">1598.198</td>
-<td style="text-align: right;">722.202</td>
-<td style="text-align: right;">376.415</td>
-</tr>
-<tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">1229.550</td>
-<td style="text-align: right;">1615.761</td>
-<td style="text-align: right;">730.139</td>
-<td style="text-align: right;">380.551</td>
-</tr>
-<tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">1247.266</td>
-<td style="text-align: right;">1639.041</td>
-<td style="text-align: right;">740.659</td>
-<td style="text-align: right;">386.034</td>
-</tr>
-</tbody>
-</table>
-</div>
-</figure>
-</div>
-</div>
-</div>
-</div>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Answers: year two normalized errors
+Answers: expected values
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="tbl-year2-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<div id="tbl-combined-expected" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-year2-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;10: Normalized errors, year two.
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-combined-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Expected values, natives combined.
 </figcaption>
-<div aria-describedby="tbl-year2-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div aria-describedby="tbl-combined-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 32%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Math Program</th>
-<th style="text-align: right;">Full-Time Work</th>
-<th style="text-align: right;">Technical School</th>
-<th style="text-align: right;">College/University</th>
-<th style="text-align: right;">Military Service</th>
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Math Program A</strong></td>
-<td style="text-align: right;">0.007</td>
-<td style="text-align: right;">0.894</td>
-<td style="text-align: right;">2.128</td>
-<td style="text-align: right;">0.005</td>
+<td><strong>Native</strong></td>
+<td style="text-align: right;">24.40</td>
+<td style="text-align: right;">65.27</td>
+<td style="text-align: right;">93.33</td>
 </tr>
 <tr class="even">
-<td><strong>Math Program B</strong></td>
-<td style="text-align: right;">0.194</td>
-<td style="text-align: right;">0.930</td>
-<td style="text-align: right;">0.302</td>
-<td style="text-align: right;">0.188</td>
-</tr>
-<tr class="odd">
-<td><strong>Math Program C</strong></td>
-<td style="text-align: right;">0.267</td>
-<td style="text-align: right;">0.001</td>
-<td style="text-align: right;">0.800</td>
-<td style="text-align: right;">0.128</td>
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">15.60</td>
+<td style="text-align: right;">41.73</td>
+<td style="text-align: right;">59.67</td>
 </tr>
 </tbody>
 </table>
@@ -1218,36 +1025,84 @@ Table&nbsp;10: Normalized errors, year two.
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Answers: year two chi-square, p-value, and decision
+Answers: normalized errors
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
 <div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
+<div id="tbl-combined-errors" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-combined-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Normalized errors, natives combined.
+</figcaption>
+<div aria-describedby="tbl-combined-errors-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Native</strong></td>
+<td style="text-align: right;">0.277</td>
+<td style="text-align: right;">1.168</td>
+<td style="text-align: right;">1.375</td>
+</tr>
+<tr class="even">
+<td><strong>Transplant</strong></td>
+<td style="text-align: right;">0.433</td>
+<td style="text-align: right;">1.826</td>
+<td style="text-align: right;">2.151</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Answers: chi-square, p-value, and decision
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
 <ul>
-<li>Chi-square statistic: <strong>5.8442</strong></li>
-<li>Degrees of freedom: (3 − 1) × (4 − 1) = <strong>6</strong></li>
-<li>In the row for 6 degrees of freedom, 5.8442 falls between 2.204 (the 0.90 column) and 10.645 (the 0.10 column). So the p-value is <strong>between 0.10 and 0.90</strong>. (The exact p-value is 0.441.)</li>
+<li>Chi-square statistic: 7.2311</li>
+<li>Degrees of freedom: (2 − 1) × (3 − 1) = 2</li>
+<li>In the row for 2 degrees of freedom, 7.2311 falls between 5.991 (the 0.05 column) and 7.378 (the 0.025 column). So the p-value is between 0.025 and 0.05. (The exact p-value is 0.027.)</li>
 </ul>
-<p><strong>Decision for year two:</strong> The p-value is greater than 0.05, so we <strong>fail to reject the null hypothesis</strong>. In year two, we do not have evidence of a relationship between math program and post-high-school outcome.</p>
+<p><strong>Decision:</strong> The p-value is less than 0.05, so we reject the null hypothesis. There is evidence of a relationship between being a native or a transplant and the route travelers take to the airport.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="interpreting-the-two-years-together" class="level2">
-<h2 class="anchored" data-anchor-id="interpreting-the-two-years-together">Interpreting the two years together</h2>
-<p>The two years led to different conclusions. Year one showed evidence of a relationship, and year two did not. This is a useful reminder that one test on one set of data is not the final word. Results can differ from sample to sample, which is why repeating a study matters.</p>
-<p>In a scenario such as this we might attribute the first year result as something that is known as an “implementation bump” or “implementation dip” which is a common result in observational field studies. Keep in mind, too, that a chi-square test tells you whether two variables are <em>related</em>. It does not, on its own, tell you that one <em>caused</em> the other.</p>
-<p>Remember also that we set aside how students were placed into each program. If, for example, students who already planned on college tended to choose Program C, that alone could create a relationship in the data.</p>
+<section id="interpreting-the-two-analyses-together" class="level2">
+<h2 class="anchored" data-anchor-id="interpreting-the-two-analyses-together">Interpreting the two analyses together</h2>
+<p>Both analyses led to the same decision, but the evidence was much stronger when we kept the three origin groups separate (p about 0.000000015) than when we combined the two native groups (p about 0.027). Combining categories threw away information: Madison natives and Greater Madison natives behave differently from each other, and lumping them together blurred that difference.</p>
+<p>Keep in mind, too, that a chi-square test tells you whether two variables are related. It does not, on its own, tell you that one variable caused the other. It also does not tell you which cells drive the result. The normalized errors help with that, because they point to the cells that contribute the most.</p>
+<p>Remember also that the data here are fictional, and that we built the relationship into the data ourselves on the Data Maker page. In real survey work you would also want to think about how respondents were selected, since a sample that is not representative of travelers can distort the results.</p>
 </section>
 <section id="other-ways-to-get-the-p-value" class="level2">
 <h2 class="anchored" data-anchor-id="other-ways-to-get-the-p-value">Other ways to get the p-value</h2>
 <p>The table gives you a range. Software can give you the exact p-value. In Excel, there are two functions for this.</p>
-<p><strong><code>CHISQ.TEST</code></strong> compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:</p>
+<p>Excel’s function <code>CHISQ.TEST()</code> compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:</p>
 <pre><code>=CHISQ.TEST(observed range, expected range)</code></pre>
-<p><strong><code>CHISQ.DIST.RT</code></strong> converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:</p>
+<p>Excel’s function <code>CHISQ.DIST.RT()</code> converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:</p>
 <pre><code>=CHISQ.DIST.RT(chi-square statistic, degrees of freedom)</code></pre>
-<p>For year one, <code>=CHISQ.DIST.RT(18.8346, 6)</code> returns 0.00445.</p>
+<p>For the combined-natives table, <code>=CHISQ.DIST.RT(7.2311, 2)</code> returns 0.027.</p>
 <p>In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.</p>
 <p>There are also websites that will find the p-value for free if you know the chi2 and df statistics.</p>
 <ul>
@@ -1271,7 +1126,7 @@ Answers: year two chi-square, p-value, and decision
 </ol>
 </section>
 <section id="sec-chi2-table" class="level2">
-<h2 class="anchored" data-anchor-id="sec-chi2-table">Reference: Chi-square critical values</h2>
+<h2 class="anchored" data-anchor-id="sec-chi2-table">Reference A: Chi-square critical values</h2>
 <p>Find the row for your degrees of freedom. The column headings are right-tail p-values. If your chi-square statistic falls between two numbers in the row, your p-value falls between the two column headings.</p>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use scipy to create a table of p-values based on critical values and df</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
@@ -1288,7 +1143,7 @@ Answers: year two chi-square, p-value, and decision
 <div id="tbl-chi2-critical" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-chi2-critical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;11: Chi-square critical values by degrees of freedom.
+Table&nbsp;10: Chi-square critical values by degrees of freedom.
 </figcaption>
 <div aria-describedby="tbl-chi2-critical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <table class="caption-top table">
@@ -1681,7 +1536,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/adamrossnelson\.github\.io\/airport-chi2\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }

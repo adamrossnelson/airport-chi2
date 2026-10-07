@@ -107,10 +107,29 @@ ul.task-list li input[type="checkbox"] {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="./chi2-example-tutorial.html"> 
-<span class="menu-text">Chi-Square Tutorial</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chi-square-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chi-Square Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chi-square-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport.html">
+ <span class="dropdown-text">Airport Routes</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-python.html">
+ <span class="dropdown-text">Airport Routes in Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-pragmatic.html">
+ <span class="dropdown-text">Airport Routes, Pragmatic</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-math.html">
+ <span class="dropdown-text">Math Programs</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
@@ -133,9 +152,12 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#site-contents" id="toc-site-contents" class="nav-link active" data-scroll-target="#site-contents">Site contents</a>
   <ul class="collapse">
-  <li><a href="#data-maker-data-maker.qmd" id="toc-data-maker-data-maker.qmd" class="nav-link" data-scroll-target="#data-maker-data-maker.qmd">Data Maker — <code>data-maker.qmd</code></a></li>
-  <li><a href="#data-preview-data-preview.qmd" id="toc-data-preview-data-preview.qmd" class="nav-link" data-scroll-target="#data-preview-data-preview.qmd">Data Preview — <code>data-preview.qmd</code></a></li>
-  <li><a href="#chi-square-tutorial-chi2-example-tutorial.qmd" id="toc-chi-square-tutorial-chi2-example-tutorial.qmd" class="nav-link" data-scroll-target="#chi-square-tutorial-chi2-example-tutorial.qmd">Chi-Square Tutorial — <code>chi2-example-tutorial.qmd</code></a></li>
+  <li><a href="#data-maker-data-maker.qmd" id="toc-data-maker-data-maker.qmd" class="nav-link" data-scroll-target="#data-maker-data-maker.qmd">Data Maker: <code>data-maker.qmd</code></a></li>
+  <li><a href="#data-preview-data-preview.qmd" id="toc-data-preview-data-preview.qmd" class="nav-link" data-scroll-target="#data-preview-data-preview.qmd">Data Preview: <code>data-preview.qmd</code></a></li>
+  <li><a href="#chi-square-tutorial-airport-routes-chi2-example-tutorial-airport.qmd" id="toc-chi-square-tutorial-airport-routes-chi2-example-tutorial-airport.qmd" class="nav-link" data-scroll-target="#chi-square-tutorial-airport-routes-chi2-example-tutorial-airport.qmd">Chi-Square Tutorial Airport Routes: <code>chi2-example-tutorial-airport.qmd</code></a></li>
+  <li><a href="#chi-square-tutorial-airport-routes-in-python-chi2-example-tutorial-airport-python.qmd" id="toc-chi-square-tutorial-airport-routes-in-python-chi2-example-tutorial-airport-python.qmd" class="nav-link" data-scroll-target="#chi-square-tutorial-airport-routes-in-python-chi2-example-tutorial-airport-python.qmd">Chi-Square Tutorial Airport Routes in Python: <code>chi2-example-tutorial-airport-python.qmd</code></a></li>
+  <li><a href="#chi-square-tutorial-airport-routes-pragmatic-chi2-example-tutorial-airport-pragmatic.qmd" id="toc-chi-square-tutorial-airport-routes-pragmatic-chi2-example-tutorial-airport-pragmatic.qmd" class="nav-link" data-scroll-target="#chi-square-tutorial-airport-routes-pragmatic-chi2-example-tutorial-airport-pragmatic.qmd">Chi-Square Tutorial Airport Routes, Pragmatic: <code>chi2-example-tutorial-airport-pragmatic.qmd</code></a></li>
+  <li><a href="#chi-square-tutorial-math-programs-chi2-example-tutorial-math.qmd" id="toc-chi-square-tutorial-math-programs-chi2-example-tutorial-math.qmd" class="nav-link" data-scroll-target="#chi-square-tutorial-math-programs-chi2-example-tutorial-math.qmd">Chi-Square Tutorial Math Programs: <code>chi2-example-tutorial-math.qmd</code></a></li>
   </ul></li>
   </ul>
 </nav>
@@ -168,15 +190,27 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="site-contents">Site contents</h2>
 <p>A quick tour of the pages available from the navigation bar above.</p>
 <section id="data-maker-data-maker.qmd" class="level3">
-<h3 class="anchored" data-anchor-id="data-maker-data-maker.qmd"><a href="./data-maker.html">Data Maker</a> — <code>data-maker.qmd</code></h3>
+<h3 class="anchored" data-anchor-id="data-maker-data-maker.qmd"><a href="./data-maker.html">Data Maker</a>: <code>data-maker.qmd</code></h3>
 <p>Generates a small, fictional survey dataset used elsewhere on the site. The scenario is an airport survey of Southwestern Madison travelers, recording each respondent’s origin and their usual route to the airport. Running this page writes <code>airport_route_survey.csv</code> next to the notebook so downstream pages have data to work with.</p>
 </section>
 <section id="data-preview-data-preview.qmd" class="level3">
-<h3 class="anchored" data-anchor-id="data-preview-data-preview.qmd"><a href="./data-preview.html">Data Preview</a> — <code>data-preview.qmd</code></h3>
+<h3 class="anchored" data-anchor-id="data-preview-data-preview.qmd"><a href="./data-preview.html">Data Preview</a>: <code>data-preview.qmd</code></h3>
 <p>A companion to Data Maker. Loads <code>airport_route_survey.csv</code> with pandas and prints the full dataset as a paginated, captioned table using Quarto’s <code>df-print: paged</code> option. Useful for confirming that the data generator produced what you expected.</p>
 </section>
-<section id="chi-square-tutorial-chi2-example-tutorial.qmd" class="level3">
-<h3 class="anchored" data-anchor-id="chi-square-tutorial-chi2-example-tutorial.qmd"><a href="./chi2-example-tutorial.html">Chi-Square Tutorial</a> — <code>chi2-example-tutorial.qmd</code></h3>
+<section id="chi-square-tutorial-airport-routes-chi2-example-tutorial-airport.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="chi-square-tutorial-airport-routes-chi2-example-tutorial-airport.qmd"><a href="./chi2-example-tutorial-airport.html">Chi-Square Tutorial Airport Routes</a>: <code>chi2-example-tutorial-airport.qmd</code></h3>
+<p>A self-paced walkthrough of the chi-square test of independence, using the fictional data produced and previewed above. Covers hypotheses, expected values, normalized errors, degrees of freedom, and how to turn a chi-square statistic into a p-value. Tables and equations are numbered and cross-referenced, and the page ends with a scipy-generated reference table of chi-square critical values.</p>
+</section>
+<section id="chi-square-tutorial-airport-routes-in-python-chi2-example-tutorial-airport-python.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="chi-square-tutorial-airport-routes-in-python-chi2-example-tutorial-airport-python.qmd"><a href="./chi2-example-tutorial-airport-python.html">Chi-Square Tutorial Airport Routes in Python</a>: <code>chi2-example-tutorial-airport-python.qmd</code></h3>
+<p>The Python companion to the airport routes tutorial. Loads <code>airport_route_survey.csv</code> and carries out the same chi-square test using only base Python, pandas, numpy, and <code>stats.chi2.sf()</code>. Each step (expected values, errors, squared errors, normalized squared errors, the chi-square statistic, and the p-value) is built three ways: cell by cell, with <code>for</code> loops, and with matrix operations.</p>
+</section>
+<section id="chi-square-tutorial-airport-routes-pragmatic-chi2-example-tutorial-airport-pragmatic.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="chi-square-tutorial-airport-routes-pragmatic-chi2-example-tutorial-airport-pragmatic.qmd"><a href="./chi2-example-tutorial-airport-pragmatic.html">Chi-Square Tutorial Airport Routes, Pragmatic</a>: <code>chi2-example-tutorial-airport-pragmatic.qmd</code></h3>
+<p>The everyday version of the same analysis. Passes the observed counts to <code>scipy.stats.chi2_contingency()</code>, then checks assumptions, inspects standardized residuals, reports Cramér’s V as an effect size, wraps the workflow in a reusable function, and shows how to write up the result.</p>
+</section>
+<section id="chi-square-tutorial-math-programs-chi2-example-tutorial-math.qmd" class="level3">
+<h3 class="anchored" data-anchor-id="chi-square-tutorial-math-programs-chi2-example-tutorial-math.qmd"><a href="./chi2-example-tutorial-math.html">Chi-Square Tutorial Math Programs</a>: <code>chi2-example-tutorial-math.qmd</code></h3>
 <p>A self-paced walkthrough of the chi-square test of independence, using a fictional evaluation of three math programs. Covers hypotheses, expected values, normalized errors, degrees of freedom, and how to turn a chi-square statistic into a p-value. Tables and equations are numbered and cross-referenced, and the page ends with a scipy-generated reference table of chi-square critical values.</p>
 
 

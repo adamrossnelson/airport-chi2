@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.39">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Adam Ross Nelson">
+<meta name="dcterms.date" content="2026-09-29">
+<meta name="description" content="The practical, everyday approach to the chi-square test of independence in Python. Passes the observed counts to scipy.stats.chi2_contingency(), checks assumptions, inspects residuals, reports an effect size, and writes up the result.">
+
+<title>Chi-Square Test of Independence: The Pragmatic Way (Airport Routes) – Using Python To Conduct Chi2 Analyses</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-6bd9cfa162949bde0a231f530c97869d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Using Python To Conduct Chi2 Analyses</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-maker" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data Maker</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-maker">    
+        <li>
+    <a class="dropdown-item" href="./data-maker.html">
+ <span class="dropdown-text">Data Maker</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./data-preview.html">
+ <span class="dropdown-text">Data Preview</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-chi-square-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Chi-Square Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-chi-square-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport.html">
+ <span class="dropdown-text">Airport Routes</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-python.html">
+ <span class="dropdown-text">Airport Routes in Python</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-airport-pragmatic.html">
+ <span class="dropdown-text">Airport Routes, Pragmatic</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./chi2-example-tutorial-math.html">
+ <span class="dropdown-text">Math Programs</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-you-will-learn" id="toc-what-you-will-learn" class="nav-link active" data-scroll-target="#what-you-will-learn">What you will learn</a></li>
+  <li><a href="#load-the-data-and-count" id="toc-load-the-data-and-count" class="nav-link" data-scroll-target="#load-the-data-and-count">Load the data and count</a></li>
+  <li><a href="#the-one-line-test" id="toc-the-one-line-test" class="nav-link" data-scroll-target="#the-one-line-test">The one-line test</a></li>
+  <li><a href="#check-the-assumptions" id="toc-check-the-assumptions" class="nav-link" data-scroll-target="#check-the-assumptions">Check the assumptions</a></li>
+  <li><a href="#which-cells-drive-the-result" id="toc-which-cells-drive-the-result" class="nav-link" data-scroll-target="#which-cells-drive-the-result">Which cells drive the result?</a></li>
+  <li><a href="#how-big-is-the-effect" id="toc-how-big-is-the-effect" class="nav-link" data-scroll-target="#how-big-is-the-effect">How big is the effect?</a></li>
+  <li><a href="#wrap-it-in-a-function" id="toc-wrap-it-in-a-function" class="nav-link" data-scroll-target="#wrap-it-in-a-function">Wrap it in a function</a></li>
+  <li><a href="#make-the-decision-and-write-it-up" id="toc-make-the-decision-and-write-it-up" class="nav-link" data-scroll-target="#make-the-decision-and-write-it-up">Make the decision and write it up</a></li>
+  <li><a href="#which-approach-should-you-use" id="toc-which-approach-should-you-use" class="nav-link" data-scroll-target="#which-approach-should-you-use">Which approach should you use?</a></li>
+  <li><a href="#your-turn" id="toc-your-turn" class="nav-link" data-scroll-target="#your-turn">Your turn</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Chi-Square Test of Independence: The Pragmatic Way (Airport Routes)</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<p class="subtitle lead">How working scientists run the test with scipy’s chi2_contingency()</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">chi-square</div>
+    <div class="quarto-category">python</div>
+    <div class="quarto-category">scipy</div>
+    <div class="quarto-category">pandas</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    <p>The practical, everyday approach to the chi-square test of independence in Python. Passes the observed counts to scipy.stats.chi2_contingency(), checks assumptions, inspects residuals, reports an effect size, and writes up the result.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Adam Ross Nelson </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 29, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="what-you-will-learn" class="level2">
+<h2 class="anchored" data-anchor-id="what-you-will-learn">What you will learn</h2>
+<p>This is the third page in a series that runs one analysis three ways, all on the same data (<code>airport_route_survey.csv</code>, from the <a href="./data-maker.html">Data Maker</a> page):</p>
+<ol type="1">
+<li><a href="./chi2-example-tutorial-airport.html">The pencil-and-paper lesson</a> shows every calculation by hand.</li>
+<li><a href="./chi2-example-tutorial-airport-python.html">The Python lesson</a> rebuilds each step in code with pandas and numpy.</li>
+<li><strong>This page</strong> shows what scientists ordinarily do: hand the observed counts to a well-tested function and spend the saved effort on checking assumptions and interpreting results.</li>
+</ol>
+<p>By the end of this lesson you will be able to:</p>
+<ul>
+<li>Run a chi-square test of independence with <code>chi2_contingency()</code>.</li>
+<li>Unpack its results: statistic, p-value, degrees of freedom, and expected values.</li>
+<li>Check that the test’s assumptions are reasonable.</li>
+<li>Find out <em>which</em> cells drive a significant result.</li>
+<li>Report an effect size (Cramér’s V), not just a p-value.</li>
+<li>Wrap the whole workflow in a reusable function and write up the result.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why learn the long way first?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The function below does in one call what took pages in the earlier lessons. It is only trustworthy in your hands if you know what it does. Everything it returns, you have already calculated: the expected values, the chi-square statistic, the degrees of freedom, and the p-value.</p>
+</div>
+</div>
+</section>
+<section id="load-the-data-and-count" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-data-and-count">Load the data and count</h2>
+<div id="9998753d" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> chi2_contingency</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>survey <span class="op">=</span> pd.read_csv(<span class="st">"airport_route_survey.csv"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>origins <span class="op">=</span> [<span class="st">"Madison native"</span>, <span class="st">"Greater Madison native"</span>, <span class="st">"Transplant"</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>routes <span class="op">=</span> [<span class="st">"North"</span>, <span class="st">"Isthmus"</span>, <span class="st">"South"</span>]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> pd.crosstab(survey[<span class="st">"origin"</span>], survey[<span class="st">"route"</span>]).loc[origins, routes]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>display(Markdown(observed.rename_axis(<span class="st">"Origin"</span>).to_markdown()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-observed" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="2">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Observed counts of origin by route.
+</figcaption>
+<div aria-describedby="tbl-observed-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Madison native</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Greater Madison native</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">51</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transplant</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">71</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><code>observed</code> stays a pandas DataFrame here. Keeping the labels attached is a real advantage over the bare numpy arrays of the previous lesson, since results can be labeled without extra work.</p>
+<p>The hypotheses are unchanged:</p>
+<ul>
+<li><strong><span class="math inline">\(H_0\)</span>:</strong> The route a traveler takes to the airport is independent of where the traveler is from.</li>
+<li><strong><span class="math inline">\(H_1\)</span>:</strong> The route a traveler takes to the airport depends on where the traveler is from.</li>
+</ul>
+</section>
+<section id="the-one-line-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-one-line-test">The one-line test</h2>
+<div id="e90142c0" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> chi2_contingency(observed)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, attr <span class="kw">in</span> <span class="bu">enumerate</span>(result):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>attr<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0: 42.25220805604945
+1: 1.4789535918079533e-08
+2: 4
+3: [[14.8  39.59 56.61]
+ [ 9.6  25.68 36.72]
+ [15.6  41.73 59.67]]</code></pre>
+</div>
+</div>
+<p>That is the whole test. The function takes the table of observed counts (a DataFrame or a numpy array) and returns a result object with four named parts.</p>
+<div id="tbl-result-parts" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-result-parts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: The parts of the result.
+</figcaption>
+<div aria-describedby="tbl-result-parts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 24%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Attribute</th>
+<th>What it is</th>
+<th>Where it appeared before</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>result.statistic</code></td>
+<td>The chi-square statistic</td>
+<td>Sum of normalized squared errors</td>
+</tr>
+<tr class="even">
+<td><code>result.pvalue</code></td>
+<td>The p-value</td>
+<td><code>stats.chi2.sf(chi2, df)</code></td>
+</tr>
+<tr class="odd">
+<td><code>result.dof</code></td>
+<td>Degrees of freedom</td>
+<td>(rows − 1) × (columns − 1)</td>
+</tr>
+<tr class="even">
+<td><code>result.expected_freq</code></td>
+<td>Matrix of expected values</td>
+<td>row total × column total ÷ grand total</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<div id="46e04479" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Chi-square statistic: </span><span class="sc">{</span>result<span class="sc">.</span>statistic<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Degrees of freedom:   </span><span class="sc">{</span>result<span class="sc">.</span>dof<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"p-value:              </span><span class="sc">{</span>result<span class="sc">.</span>pvalue<span class="sc">:.2e}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Chi-square statistic: 42.2522
+Degrees of freedom:   4
+p-value:              1.48e-08</code></pre>
+</div>
+</div>
+<p>These match the values found by hand and with loops: <span class="math inline">\(\chi^2\)</span> = 42.2522, <span class="math inline">\(df\)</span> = 4, and <span class="math inline">\(p\)</span> = 1.5e-08.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Unpacking the result
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The result also behaves like a plain tuple, so you may see older code such as:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>chi2, p, dof, expected <span class="op">=</span> chi2_contingency(observed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Named attributes (<code>result.pvalue</code>) are easier to read and are the better habit in new code.</p>
+</div>
+</div>
+</section>
+<section id="check-the-assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="check-the-assumptions">Check the assumptions</h2>
+<p>The chi-square test is an approximation, and it works well only under some conditions. Before trusting the p-value, check:</p>
+<ol type="1">
+<li><strong>Two categorical variables.</strong> Yes: origin and route.</li>
+<li><strong>Independent observations.</strong> Each respondent appears once and answers once. (This is a matter of study design, not something code can check.)</li>
+<li><strong>Adequate expected counts.</strong> A common rule of thumb is that every expected count should be at least 5.</li>
+</ol>
+<p>The third condition is easy to check because the function already returned the expected values. We wrap them in a DataFrame with the same labels as the observed table.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    result.expected_freq, index<span class="op">=</span>observed.index, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>observed.columns)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        expected.rename_axis(<span class="st">"Origin"</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".2f"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-expected" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="5">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Expected counts under independence.
+</figcaption>
+<div aria-describedby="tbl-expected-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Madison native</td>
+<td style="text-align: right;">14.80</td>
+<td style="text-align: right;">39.59</td>
+<td style="text-align: right;">56.61</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Greater Madison native</td>
+<td style="text-align: right;">9.60</td>
+<td style="text-align: right;">25.68</td>
+<td style="text-align: right;">36.72</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transplant</td>
+<td style="text-align: right;">15.60</td>
+<td style="text-align: right;">41.73</td>
+<td style="text-align: right;">59.67</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div id="774ab623" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Smallest expected count: </span><span class="sc">{</span>expected<span class="sc">.</span>to_numpy()<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"All expected counts &gt;= 5: </span><span class="sc">{</span>(expected <span class="op">&gt;=</span> <span class="dv">5</span>)<span class="sc">.</span>to_numpy()<span class="sc">.</span><span class="bu">all</span>()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Smallest expected count: 9.60
+All expected counts &gt;= 5: True</code></pre>
+</div>
+</div>
+<p>The smallest expected count is 9.60, comfortably above 5, so the approximation is fine.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+When expected counts are too small
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If some expected counts fall below 5, consider combining sparse categories, collecting more data, or (for a 2 × 2 table) using Fisher’s exact test, <code>scipy.stats.fisher_exact()</code>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What about the “correction” argument?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>chi2_contingency()</code> has a <code>correction=True</code> default. It applies Yates’ continuity correction, but only when the degrees of freedom equal 1 (a 2 × 2 table). For tables larger than 2 × 2, such as this 3 × 3 table, it changes nothing.</p>
+</div>
+</div>
+</section>
+<section id="which-cells-drive-the-result" class="level2">
+<h2 class="anchored" data-anchor-id="which-cells-drive-the-result">Which cells drive the result?</h2>
+<p>A significant chi-square statistic says <em>something</em> differs from independence, not <em>what</em>. To find out, look at the standardized (Pearson) residuals:</p>
+<p><span id="eq-residual"><span class="math display">\[
+\text{residual} = \frac{Observed - Expected}{\sqrt{Expected}}
+\tag{1}\]</span></span></p>
+<p>Residuals beyond about ±2 stand out, since values in that range would be unusual under independence. The sign tells you the direction: positive means more than expected, negative means fewer. Squaring each residual gives the normalized squared errors from the earlier lessons, so these are the same building blocks.</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> (observed <span class="op">-</span> expected) <span class="op">/</span> np.sqrt(expected)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        residuals.rename_axis(<span class="st">"Origin"</span>).<span class="bu">round</span>(<span class="dv">2</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".2f"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-residuals" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="7">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Standardized residuals. Values beyond ±2 indicate cells that depart from independence.
+</figcaption>
+<div aria-describedby="tbl-residuals-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Madison native</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">3.56</td>
+<td style="text-align: right;">-3.40</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Greater Madison native</td>
+<td style="text-align: right;">-0.19</td>
+<td style="text-align: right;">-2.70</td>
+<td style="text-align: right;">2.36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transplant</td>
+<td style="text-align: right;">-0.66</td>
+<td style="text-align: right;">-1.35</td>
+<td style="text-align: right;">1.47</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Reading <a href="#tbl-residuals" class="quarto-xref">Table&nbsp;4</a>:</p>
+<ul>
+<li>Madison natives took the Isthmus route more than expected (residual above +3) and the South route less than expected (below −3).</li>
+<li>Greater Madison natives took the Isthmus route less than expected and the South route more than expected.</li>
+<li>Transplants are much closer to what independence predicts.</li>
+</ul>
+<p>A heat map makes patterns like this easier to see. The <code>.style</code> accessor in pandas can color a table without any plotting library.</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>residuals.<span class="bu">round</span>(<span class="dv">2</span>).style.background_gradient(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"RdBu_r"</span>, vmin<span class="op">=-</span><span class="dv">4</span>, vmax<span class="op">=</span><span class="dv">4</span>).<span class="bu">format</span>(<span class="st">"</span><span class="sc">{:.2f}</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-residuals-styled" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="8">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-residuals-styled-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Standardized residuals as a heat map (red is more than expected, blue is fewer).
+</figcaption>
+<div aria-describedby="tbl-residuals-styled-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="8">
+<style type="text/css">
+#T_cea5b_row0_col0 {
+  background-color: #fdd9c4;
+  color: #000000;
+}
+#T_cea5b_row0_col1 {
+  background-color: #900d26;
+  color: #f1f1f1;
+}
+#T_cea5b_row0_col2 {
+  background-color: #1a5899;
+  color: #f1f1f1;
+}
+#T_cea5b_row1_col0 {
+  background-color: #edf2f5;
+  color: #000000;
+}
+#T_cea5b_row1_col1 {
+  background-color: #3681ba;
+  color: #f1f1f1;
+}
+#T_cea5b_row1_col2 {
+  background-color: #d7634f;
+  color: #f1f1f1;
+}
+#T_cea5b_row2_col0 {
+  background-color: #d7e8f1;
+  color: #000000;
+}
+#T_cea5b_row2_col1 {
+  background-color: #a5cee3;
+  color: #000000;
+}
+#T_cea5b_row2_col2 {
+  background-color: #f5ac8b;
+  color: #000000;
+}
+</style>
+
+<table id="T_cea5b" class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th class="index_name level0" data-quarto-table-cell-role="th">route</th>
+<th id="T_cea5b_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">North</th>
+<th id="T_cea5b_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">Isthmus</th>
+<th id="T_cea5b_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">South</th>
+</tr>
+<tr class="even">
+<th class="index_name level0" data-quarto-table-cell-role="th">origin</th>
+<th class="blank col0" data-quarto-table-cell-role="th">&nbsp;</th>
+<th class="blank col1" data-quarto-table-cell-role="th">&nbsp;</th>
+<th class="blank col2" data-quarto-table-cell-role="th">&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_cea5b_level0_row0" class="row_heading level0 row0" data-quarto-table-cell-role="th">Madison native</td>
+<td id="T_cea5b_row0_col0" class="data row0 col0">0.83</td>
+<td id="T_cea5b_row0_col1" class="data row0 col1">3.56</td>
+<td id="T_cea5b_row0_col2" class="data row0 col2">-3.40</td>
+</tr>
+<tr class="even">
+<td id="T_cea5b_level0_row1" class="row_heading level0 row1" data-quarto-table-cell-role="th">Greater Madison native</td>
+<td id="T_cea5b_row1_col0" class="data row1 col0">-0.19</td>
+<td id="T_cea5b_row1_col1" class="data row1 col1">-2.70</td>
+<td id="T_cea5b_row1_col2" class="data row1 col2">2.36</td>
+</tr>
+<tr class="odd">
+<td id="T_cea5b_level0_row2" class="row_heading level0 row2" data-quarto-table-cell-role="th">Transplant</td>
+<td id="T_cea5b_row2_col0" class="data row2 col0">-0.66</td>
+<td id="T_cea5b_row2_col1" class="data row2 col1">-1.35</td>
+<td id="T_cea5b_row2_col2" class="data row2 col2">1.47</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="how-big-is-the-effect" class="level2">
+<h2 class="anchored" data-anchor-id="how-big-is-the-effect">How big is the effect?</h2>
+<p>With a large enough sample, even a tiny departure from independence is “significant.” So a p-value alone does not tell you whether a relationship matters in practice. An effect size can give more nuance to the interpretation. For chi-square tests, a standard choice is Cramér’s V:</p>
+<p><span id="eq-cramers-v"><span class="math display">\[
+V = \sqrt{\frac{\chi^2}{n \times \min(rows - 1,\ columns - 1)}}
+\tag{2}\]</span></span></p>
+<p>V runs from 0 (no association) to 1 (perfect association).</p>
+<div id="8f1b38cd" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> observed.to_numpy().<span class="bu">sum</span>()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="bu">min</span>(observed.shape) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>cramers_v <span class="op">=</span> np.sqrt(result.statistic <span class="op">/</span> (n <span class="op">*</span> k))</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Cramér's V: </span><span class="sc">{</span>cramers_v<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cramér's V: 0.265</code></pre>
+</div>
+</div>
+<p>A common guide for interpreting V depends on the smaller table dimension, as shown in <a href="#tbl-cramers-v-guide" class="quarto-xref">Table&nbsp;6</a>. Here <code>min(rows − 1, columns − 1)</code> is 2.</p>
+<div id="tbl-cramers-v-guide" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cramers-v-guide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Rough guide for interpreting Cramér’s V (Cohen’s conventions).
+</figcaption>
+<div aria-describedby="tbl-cramers-v-guide-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">Smaller dimension − 1</th>
+<th style="text-align: center;">Small</th>
+<th style="text-align: center;">Medium</th>
+<th style="text-align: center;">Large</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0.10</td>
+<td style="text-align: center;">0.30</td>
+<td style="text-align: center;">0.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0.07</td>
+<td style="text-align: center;">0.21</td>
+<td style="text-align: center;">0.35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0.06</td>
+<td style="text-align: center;">0.17</td>
+<td style="text-align: center;">0.29</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>With V = 0.27 and a smaller dimension − 1 of 2, the relationship is somewhere between medium and large. The result is not only statistically significant but also substantial.</p>
+</section>
+<section id="wrap-it-in-a-function" class="level2">
+<h2 class="anchored" data-anchor-id="wrap-it-in-a-function">Wrap it in a function</h2>
+<p>Once you have done the analysis a few times, put the routine parts in a function so that any pair of categorical columns can be tested with one call.</p>
+<div id="4f20b60a" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chi2_report(data, row_var, col_var, row_order<span class="op">=</span><span class="va">None</span>, col_order<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run a chi-square test of independence on two categorical columns."""</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> pd.crosstab(data[row_var], data[col_var])</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> row_order <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        table <span class="op">=</span> table.loc[row_order]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> col_order <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        table <span class="op">=</span> table[col_order]</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> chi2_contingency(table)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    expected <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        res.expected_freq, index<span class="op">=</span>table.index, </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>table.columns)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> table.to_numpy().<span class="bu">sum</span>()</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(res.statistic <span class="op">/</span> (n <span class="op">*</span> (<span class="bu">min</span>(table.shape) <span class="op">-</span> <span class="dv">1</span>)))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"observed"</span>: table,</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"expected"</span>: expected,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"residuals"</span>: (table <span class="op">-</span> expected) <span class="op">/</span> np.sqrt(expected),</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"chi2"</span>: res.statistic,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dof"</span>: res.dof,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"n"</span>: n,</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p"</span>: res.pvalue,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cramers_v"</span>: v,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"min_expected"</span>: expected.to_numpy().<span class="bu">min</span>(),</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="be31b480" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>report <span class="op">=</span> chi2_report(survey, <span class="st">"origin"</span>, <span class="st">"route"</span>, origins, routes)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>report[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>report[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>report[<span class="st">'chi2'</span>]<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>report[<span class="st">'p'</span>]<span class="sc">:.2e}</span><span class="ss">, V = </span><span class="sc">{</span>report[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chi2(4, N = 300) = 42.25, p = 1.48e-08, V = 0.27</code></pre>
+</div>
+</div>
+<p>Because the function takes column names as arguments, we can reuse it immediately on a different question. Here we check the survey against itself with the roles of the variables swapped. The chi-square statistic is symmetric, so the answer is the same.</p>
+<div id="e7cb5738" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>swapped <span class="op">=</span> chi2_report(survey, <span class="st">"route"</span>, <span class="st">"origin"</span>, routes, origins)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>swapped[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>swapped[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>swapped[<span class="st">'chi2'</span>]<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>swapped[<span class="st">'p'</span>]<span class="sc">:.2e}</span><span class="ss">, V = </span><span class="sc">{</span>swapped[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chi2(4, N = 300) = 42.25, p = 1.48e-08, V = 0.27</code></pre>
+</div>
+</div>
+</section>
+<section id="make-the-decision-and-write-it-up" class="level2">
+<h2 class="anchored" data-anchor-id="make-the-decision-and-write-it-up">Make the decision and write it up</h2>
+<p>The decision rule is the same as before: If the p-value is below the significance level (conventionally 0.05), reject the null hypothesis.</p>
+<div id="f0a3344f" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Reject H0"</span> <span class="cf">if</span> report[<span class="st">"p"</span>] <span class="op">&lt;</span> alpha <span class="cf">else</span> <span class="st">"Fail to reject H0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reject H0</code></pre>
+</div>
+</div>
+<p>A typical write-up for a report or manuscript states the statistic, the degrees of freedom, the sample size, the p-value, and the effect size:</p>
+<blockquote class="blockquote">
+<p>A chi-square test of independence found a significant association between where travelers are from and the route they take to the airport, <span class="math inline">\(\chi^2\)</span>(4, <em>N</em> = 300) = 42.25, <em>p</em> &lt; .001, Cramér’s <em>V</em> = 0.27. Madison natives took the Isthmus route more often than expected, and Greater Madison natives took the South route more often than expected.</p>
+</blockquote>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What this does and does not tell you
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Rejecting the null hypothesis tells us the two variables are related. It does not show that where a person is from <em>causes</em> their route choice, and it says nothing beyond the population that was sampled. Remember also that the data here are fictional, and the Data Maker page deliberately built the relationship into them.</p>
+</div>
+</div>
+</section>
+<section id="which-approach-should-you-use" class="level2">
+<h2 class="anchored" data-anchor-id="which-approach-should-you-use">Which approach should you use?</h2>
+<div id="tbl-choosing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-choosing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Choosing an approach.
+</figcaption>
+<div aria-describedby="tbl-choosing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Use it when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="./chi2-example-tutorial-airport.html">Pencil and paper</a></td>
+<td>You are learning, teaching, or want to be sure you understand the test</td>
+</tr>
+<tr class="even">
+<td><a href="./chi2-example-tutorial-airport-python.html">Step-by-step Python</a></td>
+<td>You want to see (or explain) each intermediate matrix in code</td>
+</tr>
+<tr class="odd">
+<td><strong><code>chi2_contingency()</code></strong></td>
+<td>You are doing real analysis: fewer mistakes, less code, and time for the checks that matter</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>All three give the same answer, as they should.</p>
+</section>
+<section id="your-turn" class="level2">
+<h2 class="anchored" data-anchor-id="your-turn">Your turn</h2>
+<ol type="1">
+<li>Combine Madison native and Greater Madison native into a single “Native” group and use <code>chi2_report()</code> on the result. The earlier lessons found <span class="math inline">\(\chi^2 = 7.2311\)</span> with 2 degrees of freedom. What is Cramér’s V?</li>
+<li>Use <code>report["residuals"]</code> to describe in a sentence which origin and route combinations are most different from independence.</li>
+<li>Does the survey show that the <em>data generation process</em> is working as planned? The Data Maker page set Madison natives to 40% North / 40% Isthmus / 20% South. How close are the observed row percentages in <code>observed.div(observed.sum(axis=1), axis=0)</code>?</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Answer to question 1
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div id="978b5428" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>combined <span class="op">=</span> survey.assign(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    origin<span class="op">=</span>survey[<span class="st">"origin"</span>].replace(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"Madison native"</span>: <span class="st">"Native"</span>, <span class="st">"Greater Madison native"</span>: <span class="st">"Native"</span>}))</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> chi2_report(combined, <span class="st">"origin"</span>, <span class="st">"route"</span>, [<span class="st">"Native"</span>, <span class="st">"Transplant"</span>], routes)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>r2[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>r2[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>r2[<span class="st">'chi2'</span>]<span class="sc">:.4f}</span><span class="ss">, "</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>r2[<span class="st">'p'</span>]<span class="sc">:.4f}</span><span class="ss">, V = </span><span class="sc">{</span>r2[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>chi2(2, N = 300) = 7.2311, p = 0.0269, V = 0.16</code></pre>
+</div>
+</div>
+<p>The association is significant but weaker than with three groups, which is a small-to-medium effect for a table with 2 rows.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Answer to question 3
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>row_pct <span class="op">=</span> observed.div(observed.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>), axis<span class="op">=</span><span class="dv">0</span>) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        row_pct.rename_axis(<span class="st">"Origin"</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".1f"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tbl-row-pct" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="15">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-row-pct-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Row percentages: the share of each origin group using each route.
+</figcaption>
+<div aria-describedby="tbl-row-pct-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display cell-output-markdown">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Origin</th>
+<th style="text-align: right;">North</th>
+<th style="text-align: right;">Isthmus</th>
+<th style="text-align: right;">South</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Madison native</td>
+<td style="text-align: right;">16.2</td>
+<td style="text-align: right;">55.9</td>
+<td style="text-align: right;">27.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Greater Madison native</td>
+<td style="text-align: right;">12.5</td>
+<td style="text-align: right;">16.7</td>
+<td style="text-align: right;">70.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transplant</td>
+<td style="text-align: right;">11.1</td>
+<td style="text-align: right;">28.2</td>
+<td style="text-align: right;">60.7</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>With only 300 respondents, and only about 72 in the smallest group, sample percentages wander from the planned probabilities by several points.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<ol type="1">
+<li>Build the observed table with <code>pd.crosstab()</code>.</li>
+<li>Pass it to <code>chi2_contingency()</code>. Read <code>statistic</code>, <code>pvalue</code>, <code>dof</code>, and <code>expected_freq</code> from the result.</li>
+<li>Check that the expected counts are at least 5.</li>
+<li>Inspect standardized residuals to see which cells drive the result.</li>
+<li>Report an effect size such as Cramér’s V alongside the p-value.</li>
+<li>Wrap the routine in a function for reuse.</li>
+<li>If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.</li>
+</ol>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/adamrossnelson\.github\.io\/airport-chi2\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb25" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Chi-Square Test of Independence: The Pragmatic Way (Airport Routes)"</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "How working scientists run the test with scipy's chi2_contingency()"</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Adam Ross Nelson"</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> &gt;</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">  The practical, everyday approach to the chi-square test of independence in</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">  Python. Passes the observed counts to scipy.stats.chi2_contingency(), checks</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">  assumptions, inspects residuals, reports an effect size, and writes up the</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">  result.</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="an">categories:</span><span class="co"> [chi-square, python, scipy, pandas]</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="an">jupyter:</span><span class="co"> python3</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co">  freeze: auto</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="fu">## What you will learn</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>This is the third page in a series that runs one analysis three ways, all on the same data (<span class="in">`airport_route_survey.csv`</span>, from the <span class="co">[</span><span class="ot">Data Maker</span><span class="co">](data-maker.qmd)</span> page):</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span><span class="co">[</span><span class="ot">The pencil-and-paper lesson</span><span class="co">](chi2-example-tutorial-airport.qmd)</span> shows every calculation by hand.</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="co">[</span><span class="ot">The Python lesson</span><span class="co">](chi2-example-tutorial-airport-python.qmd)</span> rebuilds each step in code with pandas and numpy.</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**This page** shows what scientists ordinarily do: hand the observed counts to a well-tested function and spend the saved effort on checking assumptions and interpreting results.</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>By the end of this lesson you will be able to:</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Run a chi-square test of independence with <span class="in">`chi2_contingency()`</span>.</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Unpack its results: statistic, p-value, degrees of freedom, and expected values.</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Check that the test's assumptions are reasonable.</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Find out *which* cells drive a significant result.</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Report an effect size (Cramér's V), not just a p-value.</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Wrap the whole workflow in a reusable function and write up the result.</span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why learn the long way first?</span></span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a>The function below does in one call what took pages in the earlier lessons. It is only trustworthy in your hands if you know what it does. Everything it returns, you have already calculated: the expected values, the chi-square statistic, the degrees of freedom, and the p-value.</span>
+<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Load the data and count</span></span>
+<span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> chi2_contingency</span>
+<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a>survey <span class="op">=</span> pd.read_csv(<span class="st">"airport_route_survey.csv"</span>)</span>
+<span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a>origins <span class="op">=</span> [<span class="st">"Madison native"</span>, <span class="st">"Greater Madison native"</span>, <span class="st">"Transplant"</span>]</span>
+<span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a>routes <span class="op">=</span> [<span class="st">"North"</span>, <span class="st">"Isthmus"</span>, <span class="st">"South"</span>]</span>
+<span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> pd.crosstab(survey[<span class="st">"origin"</span>], survey[<span class="st">"route"</span>]).loc[origins, routes]</span>
+<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-observed</span></span>
+<span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Observed counts of origin by route."</span></span>
+<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-69"><a href="#cb25-69" aria-hidden="true" tabindex="-1"></a>display(Markdown(observed.rename_axis(<span class="st">"Origin"</span>).to_markdown()))</span>
+<span id="cb25-70"><a href="#cb25-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-71"><a href="#cb25-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-72"><a href="#cb25-72" aria-hidden="true" tabindex="-1"></a><span class="in">`observed`</span> stays a pandas DataFrame here. Keeping the labels attached is a real advantage over the bare numpy arrays of the previous lesson, since results can be labeled without extra work.</span>
+<span id="cb25-73"><a href="#cb25-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a>The hypotheses are unchanged:</span>
+<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**$H_0$:** The route a traveler takes to the airport is independent of where the traveler is from.</span>
+<span id="cb25-77"><a href="#cb25-77" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**$H_1$:** The route a traveler takes to the airport depends on where the traveler is from.</span>
+<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-79"><a href="#cb25-79" aria-hidden="true" tabindex="-1"></a><span class="fu">## The one-line test</span></span>
+<span id="cb25-80"><a href="#cb25-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-83"><a href="#cb25-83" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-84"><a href="#cb25-84" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> chi2_contingency(observed)</span>
+<span id="cb25-85"><a href="#cb25-85" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, attr <span class="kw">in</span> <span class="bu">enumerate</span>(result):</span>
+<span id="cb25-86"><a href="#cb25-86" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>attr<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-87"><a href="#cb25-87" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-88"><a href="#cb25-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-89"><a href="#cb25-89" aria-hidden="true" tabindex="-1"></a>That is the whole test. The function takes the table of observed counts (a DataFrame or a numpy array) and returns a result object with four named parts.</span>
+<span id="cb25-90"><a href="#cb25-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-91"><a href="#cb25-91" aria-hidden="true" tabindex="-1"></a>| Attribute | What it is | Where it appeared before |</span>
+<span id="cb25-92"><a href="#cb25-92" aria-hidden="true" tabindex="-1"></a>|-----------|------------|--------------------------|</span>
+<span id="cb25-93"><a href="#cb25-93" aria-hidden="true" tabindex="-1"></a>| <span class="in">`result.statistic`</span> | The chi-square statistic | Sum of normalized squared errors |</span>
+<span id="cb25-94"><a href="#cb25-94" aria-hidden="true" tabindex="-1"></a>| <span class="in">`result.pvalue`</span> | The p-value | <span class="in">`stats.chi2.sf(chi2, df)`</span> |</span>
+<span id="cb25-95"><a href="#cb25-95" aria-hidden="true" tabindex="-1"></a>| <span class="in">`result.dof`</span> | Degrees of freedom | (rows − 1) × (columns − 1) |</span>
+<span id="cb25-96"><a href="#cb25-96" aria-hidden="true" tabindex="-1"></a>| <span class="in">`result.expected_freq`</span> | Matrix of expected values | row total × column total ÷ grand total |</span>
+<span id="cb25-97"><a href="#cb25-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-98"><a href="#cb25-98" aria-hidden="true" tabindex="-1"></a>: The parts of the result. {#tbl-result-parts}</span>
+<span id="cb25-99"><a href="#cb25-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-102"><a href="#cb25-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-103"><a href="#cb25-103" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Chi-square statistic: </span><span class="sc">{</span>result<span class="sc">.</span>statistic<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb25-104"><a href="#cb25-104" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Degrees of freedom:   </span><span class="sc">{</span>result<span class="sc">.</span>dof<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-105"><a href="#cb25-105" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"p-value:              </span><span class="sc">{</span>result<span class="sc">.</span>pvalue<span class="sc">:.2e}</span><span class="ss">"</span>)</span>
+<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-107"><a href="#cb25-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a>These match the values found by hand and with loops: $\chi^2$ = <span class="in">`{python} f"{result.statistic:.4f}"`</span>, $df$ = <span class="in">`{python} result.dof`</span>, and $p$ = <span class="in">`{python} f"{result.pvalue:.1e}"`</span>.</span>
+<span id="cb25-109"><a href="#cb25-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-110"><a href="#cb25-110" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip}</span>
+<span id="cb25-111"><a href="#cb25-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## Unpacking the result</span></span>
+<span id="cb25-112"><a href="#cb25-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-113"><a href="#cb25-113" aria-hidden="true" tabindex="-1"></a>The result also behaves like a plain tuple, so you may see older code such as:</span>
+<span id="cb25-114"><a href="#cb25-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-115"><a href="#cb25-115" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb25-116"><a href="#cb25-116" aria-hidden="true" tabindex="-1"></a>chi2, p, dof, expected <span class="op">=</span> chi2_contingency(observed)</span>
+<span id="cb25-117"><a href="#cb25-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-118"><a href="#cb25-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-119"><a href="#cb25-119" aria-hidden="true" tabindex="-1"></a>Named attributes (<span class="in">`result.pvalue`</span>) are easier to read and are the better habit in new code.</span>
+<span id="cb25-120"><a href="#cb25-120" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-121"><a href="#cb25-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-122"><a href="#cb25-122" aria-hidden="true" tabindex="-1"></a><span class="fu">## Check the assumptions</span></span>
+<span id="cb25-123"><a href="#cb25-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a>The chi-square test is an approximation, and it works well only under some conditions. Before trusting the p-value, check:</span>
+<span id="cb25-125"><a href="#cb25-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-126"><a href="#cb25-126" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Two categorical variables.** Yes: origin and route.</span>
+<span id="cb25-127"><a href="#cb25-127" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Independent observations.** Each respondent appears once and answers once. (This is a matter of study design, not something code can check.)</span>
+<span id="cb25-128"><a href="#cb25-128" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Adequate expected counts.** A common rule of thumb is that every expected count should be at least 5.</span>
+<span id="cb25-129"><a href="#cb25-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-130"><a href="#cb25-130" aria-hidden="true" tabindex="-1"></a>The third condition is easy to check because the function already returned the expected values. We wrap them in a DataFrame with the same labels as the observed table.</span>
+<span id="cb25-131"><a href="#cb25-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-134"><a href="#cb25-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-135"><a href="#cb25-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-expected</span></span>
+<span id="cb25-136"><a href="#cb25-136" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Expected counts under independence."</span></span>
+<span id="cb25-137"><a href="#cb25-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-138"><a href="#cb25-138" aria-hidden="true" tabindex="-1"></a>expected <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a>    result.expected_freq, index<span class="op">=</span>observed.index, </span>
+<span id="cb25-140"><a href="#cb25-140" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>observed.columns)</span>
+<span id="cb25-141"><a href="#cb25-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-142"><a href="#cb25-142" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb25-143"><a href="#cb25-143" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb25-144"><a href="#cb25-144" aria-hidden="true" tabindex="-1"></a>        expected.rename_axis(<span class="st">"Origin"</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".2f"</span>)))</span>
+<span id="cb25-145"><a href="#cb25-145" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-146"><a href="#cb25-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-149"><a href="#cb25-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-150"><a href="#cb25-150" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Smallest expected count: </span><span class="sc">{</span>expected<span class="sc">.</span>to_numpy()<span class="sc">.</span><span class="bu">min</span>()<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb25-151"><a href="#cb25-151" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"All expected counts &gt;= 5: </span><span class="sc">{</span>(expected <span class="op">&gt;=</span> <span class="dv">5</span>)<span class="sc">.</span>to_numpy()<span class="sc">.</span><span class="bu">all</span>()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-152"><a href="#cb25-152" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-153"><a href="#cb25-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-154"><a href="#cb25-154" aria-hidden="true" tabindex="-1"></a>The smallest expected count is <span class="in">`{python} f"{expected.to_numpy().min():.2f}"`</span>, comfortably above 5, so the approximation is fine.</span>
+<span id="cb25-155"><a href="#cb25-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-156"><a href="#cb25-156" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb25-157"><a href="#cb25-157" aria-hidden="true" tabindex="-1"></a><span class="fu">## When expected counts are too small</span></span>
+<span id="cb25-158"><a href="#cb25-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-159"><a href="#cb25-159" aria-hidden="true" tabindex="-1"></a>If some expected counts fall below 5, consider combining sparse categories, collecting more data, or (for a 2 × 2 table) using Fisher's exact test, <span class="in">`scipy.stats.fisher_exact()`</span>.</span>
+<span id="cb25-160"><a href="#cb25-160" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-161"><a href="#cb25-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-162"><a href="#cb25-162" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb25-163"><a href="#cb25-163" aria-hidden="true" tabindex="-1"></a><span class="fu">## What about the "correction" argument?</span></span>
+<span id="cb25-164"><a href="#cb25-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-165"><a href="#cb25-165" aria-hidden="true" tabindex="-1"></a><span class="in">`chi2_contingency()`</span> has a <span class="in">`correction=True`</span> default. It applies Yates' continuity correction, but only when the degrees of freedom equal 1 (a 2 × 2 table). For tables larger than 2 × 2, such as this 3 × 3 table, it changes nothing.</span>
+<span id="cb25-166"><a href="#cb25-166" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-167"><a href="#cb25-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-168"><a href="#cb25-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Which cells drive the result?</span></span>
+<span id="cb25-169"><a href="#cb25-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-170"><a href="#cb25-170" aria-hidden="true" tabindex="-1"></a>A significant chi-square statistic says *something* differs from independence, not *what*. To find out, look at the standardized (Pearson) residuals:</span>
+<span id="cb25-171"><a href="#cb25-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-172"><a href="#cb25-172" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb25-173"><a href="#cb25-173" aria-hidden="true" tabindex="-1"></a>\text{residual} = \frac{Observed - Expected}{\sqrt{Expected}}</span>
+<span id="cb25-174"><a href="#cb25-174" aria-hidden="true" tabindex="-1"></a>$$ {#eq-residual}</span>
+<span id="cb25-175"><a href="#cb25-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-176"><a href="#cb25-176" aria-hidden="true" tabindex="-1"></a>Residuals beyond about ±2 stand out, since values in that range would be unusual under independence. The sign tells you the direction: positive means more than expected, negative means fewer. Squaring each residual gives the normalized squared errors from the earlier lessons, so these are the same building blocks.</span>
+<span id="cb25-177"><a href="#cb25-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-180"><a href="#cb25-180" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-181"><a href="#cb25-181" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-residuals</span></span>
+<span id="cb25-182"><a href="#cb25-182" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Standardized residuals. Values beyond ±2 indicate cells that depart from independence."</span></span>
+<span id="cb25-183"><a href="#cb25-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-184"><a href="#cb25-184" aria-hidden="true" tabindex="-1"></a>residuals <span class="op">=</span> (observed <span class="op">-</span> expected) <span class="op">/</span> np.sqrt(expected)</span>
+<span id="cb25-185"><a href="#cb25-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-186"><a href="#cb25-186" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb25-187"><a href="#cb25-187" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb25-188"><a href="#cb25-188" aria-hidden="true" tabindex="-1"></a>        residuals.rename_axis(<span class="st">"Origin"</span>).<span class="bu">round</span>(<span class="dv">2</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".2f"</span>)))</span>
+<span id="cb25-189"><a href="#cb25-189" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-190"><a href="#cb25-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-191"><a href="#cb25-191" aria-hidden="true" tabindex="-1"></a>Reading @tbl-residuals:</span>
+<span id="cb25-192"><a href="#cb25-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-193"><a href="#cb25-193" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Madison natives took the Isthmus route more than expected (residual above +3) and the South route less than expected (below −3).</span>
+<span id="cb25-194"><a href="#cb25-194" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Greater Madison natives took the Isthmus route less than expected and the South route more than expected.</span>
+<span id="cb25-195"><a href="#cb25-195" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Transplants are much closer to what independence predicts.</span>
+<span id="cb25-196"><a href="#cb25-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-197"><a href="#cb25-197" aria-hidden="true" tabindex="-1"></a>A heat map makes patterns like this easier to see. The <span class="in">`.style`</span> accessor in pandas can color a table without any plotting library.</span>
+<span id="cb25-198"><a href="#cb25-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-201"><a href="#cb25-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-202"><a href="#cb25-202" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-residuals-styled</span></span>
+<span id="cb25-203"><a href="#cb25-203" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Standardized residuals as a heat map (red is more than expected, blue is fewer)."</span></span>
+<span id="cb25-204"><a href="#cb25-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-205"><a href="#cb25-205" aria-hidden="true" tabindex="-1"></a>residuals.<span class="bu">round</span>(<span class="dv">2</span>).style.background_gradient(</span>
+<span id="cb25-206"><a href="#cb25-206" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"RdBu_r"</span>, vmin<span class="op">=-</span><span class="dv">4</span>, vmax<span class="op">=</span><span class="dv">4</span>).<span class="bu">format</span>(<span class="st">"</span><span class="sc">{:.2f}</span><span class="st">"</span>)</span>
+<span id="cb25-207"><a href="#cb25-207" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-208"><a href="#cb25-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-209"><a href="#cb25-209" aria-hidden="true" tabindex="-1"></a><span class="fu">## How big is the effect?</span></span>
+<span id="cb25-210"><a href="#cb25-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-211"><a href="#cb25-211" aria-hidden="true" tabindex="-1"></a>With a large enough sample, even a tiny departure from independence is "significant." So a p-value alone does not tell you whether a relationship matters in practice. An effect size can give more nuance to the interpretation. For chi-square tests, a standard choice is Cramér's V:</span>
+<span id="cb25-212"><a href="#cb25-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-213"><a href="#cb25-213" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb25-214"><a href="#cb25-214" aria-hidden="true" tabindex="-1"></a>V = \sqrt{\frac{\chi^2}{n \times \min(rows - 1,\ columns - 1)}}</span>
+<span id="cb25-215"><a href="#cb25-215" aria-hidden="true" tabindex="-1"></a>$$ {#eq-cramers-v}</span>
+<span id="cb25-216"><a href="#cb25-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-217"><a href="#cb25-217" aria-hidden="true" tabindex="-1"></a>V runs from 0 (no association) to 1 (perfect association).</span>
+<span id="cb25-218"><a href="#cb25-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-221"><a href="#cb25-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-222"><a href="#cb25-222" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> observed.to_numpy().<span class="bu">sum</span>()</span>
+<span id="cb25-223"><a href="#cb25-223" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="bu">min</span>(observed.shape) <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb25-224"><a href="#cb25-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-225"><a href="#cb25-225" aria-hidden="true" tabindex="-1"></a>cramers_v <span class="op">=</span> np.sqrt(result.statistic <span class="op">/</span> (n <span class="op">*</span> k))</span>
+<span id="cb25-226"><a href="#cb25-226" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Cramér's V: </span><span class="sc">{</span>cramers_v<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb25-227"><a href="#cb25-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-228"><a href="#cb25-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-229"><a href="#cb25-229" aria-hidden="true" tabindex="-1"></a>A common guide for interpreting V depends on the smaller table dimension, as shown in @tbl-cramers-v-guide. Here <span class="in">`min(rows − 1, columns − 1)`</span> is 2.</span>
+<span id="cb25-230"><a href="#cb25-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-231"><a href="#cb25-231" aria-hidden="true" tabindex="-1"></a>| Smaller dimension − 1 | Small | Medium | Large |</span>
+<span id="cb25-232"><a href="#cb25-232" aria-hidden="true" tabindex="-1"></a>|:---------------------:|:-----:|:------:|:-----:|</span>
+<span id="cb25-233"><a href="#cb25-233" aria-hidden="true" tabindex="-1"></a>| 1 | 0.10 | 0.30 | 0.50 |</span>
+<span id="cb25-234"><a href="#cb25-234" aria-hidden="true" tabindex="-1"></a>| 2 | 0.07 | 0.21 | 0.35 |</span>
+<span id="cb25-235"><a href="#cb25-235" aria-hidden="true" tabindex="-1"></a>| 3 | 0.06 | 0.17 | 0.29 |</span>
+<span id="cb25-236"><a href="#cb25-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a>: Rough guide for interpreting Cramér's V (Cohen's conventions). {#tbl-cramers-v-guide}</span>
+<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a>With V = <span class="in">`{python} f"{cramers_v:.2f}"`</span> and a smaller dimension − 1 of 2, the relationship is somewhere between medium and large. The result is not only statistically significant but also substantial.</span>
+<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-241"><a href="#cb25-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Wrap it in a function</span></span>
+<span id="cb25-242"><a href="#cb25-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-243"><a href="#cb25-243" aria-hidden="true" tabindex="-1"></a>Once you have done the analysis a few times, put the routine parts in a function so that any pair of categorical columns can be tested with one call.</span>
+<span id="cb25-244"><a href="#cb25-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> chi2_report(data, row_var, col_var, row_order<span class="op">=</span><span class="va">None</span>, col_order<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Run a chi-square test of independence on two categorical columns."""</span></span>
+<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> pd.crosstab(data[row_var], data[col_var])</span>
+<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> row_order <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a>        table <span class="op">=</span> table.loc[row_order]</span>
+<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> col_order <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a>        table <span class="op">=</span> table[col_order]</span>
+<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> chi2_contingency(table)</span>
+<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a>    expected <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a>        res.expected_freq, index<span class="op">=</span>table.index, </span>
+<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a>        columns<span class="op">=</span>table.columns)</span>
+<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> table.to_numpy().<span class="bu">sum</span>()</span>
+<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>    v <span class="op">=</span> np.sqrt(res.statistic <span class="op">/</span> (n <span class="op">*</span> (<span class="bu">min</span>(table.shape) <span class="op">-</span> <span class="dv">1</span>)))</span>
+<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a>        <span class="st">"observed"</span>: table,</span>
+<span id="cb25-266"><a href="#cb25-266" aria-hidden="true" tabindex="-1"></a>        <span class="st">"expected"</span>: expected,</span>
+<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a>        <span class="st">"residuals"</span>: (table <span class="op">-</span> expected) <span class="op">/</span> np.sqrt(expected),</span>
+<span id="cb25-268"><a href="#cb25-268" aria-hidden="true" tabindex="-1"></a>        <span class="st">"chi2"</span>: res.statistic,</span>
+<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dof"</span>: res.dof,</span>
+<span id="cb25-270"><a href="#cb25-270" aria-hidden="true" tabindex="-1"></a>        <span class="st">"n"</span>: n,</span>
+<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a>        <span class="st">"p"</span>: res.pvalue,</span>
+<span id="cb25-272"><a href="#cb25-272" aria-hidden="true" tabindex="-1"></a>        <span class="st">"cramers_v"</span>: v,</span>
+<span id="cb25-273"><a href="#cb25-273" aria-hidden="true" tabindex="-1"></a>        <span class="st">"min_expected"</span>: expected.to_numpy().<span class="bu">min</span>(),</span>
+<span id="cb25-274"><a href="#cb25-274" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-276"><a href="#cb25-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a>report <span class="op">=</span> chi2_report(survey, <span class="st">"origin"</span>, <span class="st">"route"</span>, origins, routes)</span>
+<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>report[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>report[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>report[<span class="st">'chi2'</span>]<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb25-283"><a href="#cb25-283" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>report[<span class="st">'p'</span>]<span class="sc">:.2e}</span><span class="ss">, V = </span><span class="sc">{</span>report[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb25-284"><a href="#cb25-284" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a>Because the function takes column names as arguments, we can reuse it immediately on a different question. Here we check the survey against itself with the roles of the variables swapped. The chi-square statistic is symmetric, so the answer is the same.</span>
+<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a>swapped <span class="op">=</span> chi2_report(survey, <span class="st">"route"</span>, <span class="st">"origin"</span>, routes, origins)</span>
+<span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>swapped[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>swapped[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>swapped[<span class="st">'chi2'</span>]<span class="sc">:.2f}</span><span class="ss">, "</span></span>
+<span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>swapped[<span class="st">'p'</span>]<span class="sc">:.2e}</span><span class="ss">, V = </span><span class="sc">{</span>swapped[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb25-295"><a href="#cb25-295" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-296"><a href="#cb25-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-297"><a href="#cb25-297" aria-hidden="true" tabindex="-1"></a><span class="fu">## Make the decision and write it up</span></span>
+<span id="cb25-298"><a href="#cb25-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a>The decision rule is the same as before: If the p-value is below the significance level (conventionally 0.05), reject the null hypothesis.</span>
+<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Reject H0"</span> <span class="cf">if</span> report[<span class="st">"p"</span>] <span class="op">&lt;</span> alpha <span class="cf">else</span> <span class="st">"Fail to reject H0"</span>)</span>
+<span id="cb25-306"><a href="#cb25-306" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-307"><a href="#cb25-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-308"><a href="#cb25-308" aria-hidden="true" tabindex="-1"></a>A typical write-up for a report or manuscript states the statistic, the degrees of freedom, the sample size, the p-value, and the effect size:</span>
+<span id="cb25-309"><a href="#cb25-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-310"><a href="#cb25-310" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; A chi-square test of independence found a significant association between where travelers are from and the route they take to the airport, $\chi^2$(</span><span class="in">`{python} report['dof']`</span><span class="at">, *N* = `{python} report['n']`) = `{python} f"{report['chi2']:.2f}"`, *p* &lt; .001, Cramér's *V* = </span><span class="in">`{python} f"{report['cramers_v']:.2f}"`</span><span class="at">. Madison natives took the Isthmus route more often than expected, and Greater Madison natives took the South route more often than expected.</span></span>
+<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-312"><a href="#cb25-312" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a><span class="fu">## What this does and does not tell you</span></span>
+<span id="cb25-314"><a href="#cb25-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a>Rejecting the null hypothesis tells us the two variables are related. It does not show that where a person is from *causes* their route choice, and it says nothing beyond the population that was sampled. Remember also that the data here are fictional, and the Data Maker page deliberately built the relationship into them.</span>
+<span id="cb25-316"><a href="#cb25-316" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-318"><a href="#cb25-318" aria-hidden="true" tabindex="-1"></a><span class="fu">## Which approach should you use?</span></span>
+<span id="cb25-319"><a href="#cb25-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-320"><a href="#cb25-320" aria-hidden="true" tabindex="-1"></a>| Approach | Use it when |</span>
+<span id="cb25-321"><a href="#cb25-321" aria-hidden="true" tabindex="-1"></a>|----------|-------------|</span>
+<span id="cb25-322"><a href="#cb25-322" aria-hidden="true" tabindex="-1"></a>| <span class="co">[</span><span class="ot">Pencil and paper</span><span class="co">](chi2-example-tutorial-airport.qmd)</span> | You are learning, teaching, or want to be sure you understand the test |</span>
+<span id="cb25-323"><a href="#cb25-323" aria-hidden="true" tabindex="-1"></a>| <span class="co">[</span><span class="ot">Step-by-step Python</span><span class="co">](chi2-example-tutorial-airport-python.qmd)</span> | You want to see (or explain) each intermediate matrix in code |</span>
+<span id="cb25-324"><a href="#cb25-324" aria-hidden="true" tabindex="-1"></a>| **`chi2_contingency()`** | You are doing real analysis: fewer mistakes, less code, and time for the checks that matter |</span>
+<span id="cb25-325"><a href="#cb25-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-326"><a href="#cb25-326" aria-hidden="true" tabindex="-1"></a>: Choosing an approach. {#tbl-choosing}</span>
+<span id="cb25-327"><a href="#cb25-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-328"><a href="#cb25-328" aria-hidden="true" tabindex="-1"></a>All three give the same answer, as they should.</span>
+<span id="cb25-329"><a href="#cb25-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-330"><a href="#cb25-330" aria-hidden="true" tabindex="-1"></a><span class="fu">## Your turn</span></span>
+<span id="cb25-331"><a href="#cb25-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-332"><a href="#cb25-332" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Combine Madison native and Greater Madison native into a single "Native" group and use <span class="in">`chi2_report()`</span> on the result. The earlier lessons found $\chi^2 = 7.2311$ with 2 degrees of freedom. What is Cramér's V?</span>
+<span id="cb25-333"><a href="#cb25-333" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Use <span class="in">`report["residuals"]`</span> to describe in a sentence which origin and route combinations are most different from independence.</span>
+<span id="cb25-334"><a href="#cb25-334" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Does the survey show that the *data generation process* is working as planned? The Data Maker page set Madison natives to 40% North / 40% Isthmus / 20% South. How close are the observed row percentages in <span class="in">`observed.div(observed.sum(axis=1), axis=0)`</span>?</span>
+<span id="cb25-335"><a href="#cb25-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-336"><a href="#cb25-336" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb25-337"><a href="#cb25-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Answer to question 1</span></span>
+<span id="cb25-338"><a href="#cb25-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-341"><a href="#cb25-341" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-342"><a href="#cb25-342" aria-hidden="true" tabindex="-1"></a>combined <span class="op">=</span> survey.assign(</span>
+<span id="cb25-343"><a href="#cb25-343" aria-hidden="true" tabindex="-1"></a>    origin<span class="op">=</span>survey[<span class="st">"origin"</span>].replace(</span>
+<span id="cb25-344"><a href="#cb25-344" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"Madison native"</span>: <span class="st">"Native"</span>, <span class="st">"Greater Madison native"</span>: <span class="st">"Native"</span>}))</span>
+<span id="cb25-345"><a href="#cb25-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-346"><a href="#cb25-346" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> chi2_report(combined, <span class="st">"origin"</span>, <span class="st">"route"</span>, [<span class="st">"Native"</span>, <span class="st">"Transplant"</span>], routes)</span>
+<span id="cb25-347"><a href="#cb25-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-348"><a href="#cb25-348" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"chi2(</span><span class="sc">{</span>r2[<span class="st">'dof'</span>]<span class="sc">}</span><span class="ss">, N = </span><span class="sc">{</span>r2[<span class="st">'n'</span>]<span class="sc">}</span><span class="ss">) = </span><span class="sc">{</span>r2[<span class="st">'chi2'</span>]<span class="sc">:.4f}</span><span class="ss">, "</span></span>
+<span id="cb25-349"><a href="#cb25-349" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"p = </span><span class="sc">{</span>r2[<span class="st">'p'</span>]<span class="sc">:.4f}</span><span class="ss">, V = </span><span class="sc">{</span>r2[<span class="st">'cramers_v'</span>]<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb25-350"><a href="#cb25-350" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-351"><a href="#cb25-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-352"><a href="#cb25-352" aria-hidden="true" tabindex="-1"></a>The association is significant but weaker than with three groups, which is a small-to-medium effect for a table with 2 rows.</span>
+<span id="cb25-353"><a href="#cb25-353" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-354"><a href="#cb25-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-355"><a href="#cb25-355" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb25-356"><a href="#cb25-356" aria-hidden="true" tabindex="-1"></a><span class="fu">## Answer to question 3</span></span>
+<span id="cb25-357"><a href="#cb25-357" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-360"><a href="#cb25-360" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb25-361"><a href="#cb25-361" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tbl-row-pct</span></span>
+<span id="cb25-362"><a href="#cb25-362" aria-hidden="true" tabindex="-1"></a><span class="co">#| tbl-cap: "Row percentages: the share of each origin group using each route."</span></span>
+<span id="cb25-363"><a href="#cb25-363" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-364"><a href="#cb25-364" aria-hidden="true" tabindex="-1"></a>row_pct <span class="op">=</span> observed.div(observed.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>), axis<span class="op">=</span><span class="dv">0</span>) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb25-365"><a href="#cb25-365" aria-hidden="true" tabindex="-1"></a>display(</span>
+<span id="cb25-366"><a href="#cb25-366" aria-hidden="true" tabindex="-1"></a>    Markdown(</span>
+<span id="cb25-367"><a href="#cb25-367" aria-hidden="true" tabindex="-1"></a>        row_pct.rename_axis(<span class="st">"Origin"</span>).to_markdown(floatfmt<span class="op">=</span><span class="st">".1f"</span>)))</span>
+<span id="cb25-368"><a href="#cb25-368" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-369"><a href="#cb25-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-370"><a href="#cb25-370" aria-hidden="true" tabindex="-1"></a>With only 300 respondents, and only about 72 in the smallest group, sample percentages wander from the planned probabilities by several points.</span>
+<span id="cb25-371"><a href="#cb25-371" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb25-372"><a href="#cb25-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-373"><a href="#cb25-373" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary</span></span>
+<span id="cb25-374"><a href="#cb25-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-375"><a href="#cb25-375" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Build the observed table with <span class="in">`pd.crosstab()`</span>.</span>
+<span id="cb25-376"><a href="#cb25-376" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Pass it to <span class="in">`chi2_contingency()`</span>. Read <span class="in">`statistic`</span>, <span class="in">`pvalue`</span>, <span class="in">`dof`</span>, and <span class="in">`expected_freq`</span> from the result.</span>
+<span id="cb25-377"><a href="#cb25-377" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Check that the expected counts are at least 5.</span>
+<span id="cb25-378"><a href="#cb25-378" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Inspect standardized residuals to see which cells drive the result.</span>
+<span id="cb25-379"><a href="#cb25-379" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Report an effect size such as Cramér's V alongside the p-value.</span>
+<span id="cb25-380"><a href="#cb25-380" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Wrap the routine in a function for reuse.</span>
+<span id="cb25-381"><a href="#cb25-381" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.</span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
