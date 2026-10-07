@@ -10,14 +10,26 @@ Chi-square tests are one of the most common tools for asking whether two categor
 
 A quick tour of the pages available from the navigation bar above.
 
-### [Data Maker](data-maker.qmd) &mdash; `data-maker.qmd`
+### [Data Maker](data-maker.qmd): `data-maker.qmd`
 
 Generates a small, fictional survey dataset used elsewhere on the site. The scenario is an airport survey of Southwestern Madison travelers, recording each respondent's origin and their usual route to the airport. Running this page writes `airport_route_survey.csv` next to the notebook so downstream pages have data to work with.
 
-### [Data Preview](data-preview.qmd) &mdash; `data-preview.qmd`
+### [Data Preview](data-preview.qmd): `data-preview.qmd`
 
 A companion to Data Maker. Loads `airport_route_survey.csv` with pandas and prints the full dataset as a paginated, captioned table using Quarto's `df-print: paged` option. Useful for confirming that the data generator produced what you expected.
 
-### [Chi-Square Tutorial](chi2-example-tutorial.qmd) &mdash; `chi2-example-tutorial.qmd`
+### [Chi-Square Tutorial Airport Routes](chi2-example-tutorial-airport.qmd): `chi2-example-tutorial-airport.qmd`
+
+A self-paced walkthrough of the chi-square test of independence, using the fictional data produced and previewed above. Covers hypotheses, expected values, normalized errors, degrees of freedom, and how to turn a chi-square statistic into a p-value. Tables and equations are numbered and cross-referenced, and the page ends with a scipy-generated reference table of chi-square critical values.
+
+### [Chi-Square Tutorial Airport Routes in Python](chi2-example-tutorial-airport-python.qmd): `chi2-example-tutorial-airport-python.qmd`
+
+The Python companion to the airport routes tutorial. Loads `airport_route_survey.csv` and carries out the same chi-square test using only base Python, pandas, numpy, and `stats.chi2.sf()`. Each step (expected values, errors, squared errors, normalized squared errors, the chi-square statistic, and the p-value) is built three ways: cell by cell, with `for` loops, and with matrix operations.
+
+### [Chi-Square Tutorial Airport Routes, Pragmatic](chi2-example-tutorial-airport-pragmatic.qmd): `chi2-example-tutorial-airport-pragmatic.qmd`
+
+The everyday version of the same analysis. Passes the observed counts to `scipy.stats.chi2_contingency()`, then checks assumptions, inspects standardized residuals, reports Cramér's V as an effect size, wraps the workflow in a reusable function, and shows how to write up the result.
+
+### [Chi-Square Tutorial Math Programs](chi2-example-tutorial-math.qmd): `chi2-example-tutorial-math.qmd`
 
 A self-paced walkthrough of the chi-square test of independence, using a fictional evaluation of three math programs. Covers hypotheses, expected values, normalized errors, degrees of freedom, and how to turn a chi-square statistic into a p-value. Tables and equations are numbered and cross-referenced, and the page ends with a scipy-generated reference table of chi-square critical values.

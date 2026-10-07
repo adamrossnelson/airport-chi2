@@ -1,0 +1,351 @@
+---
+title: "Chi-Square Test of Independence: The Pragmatic Way (Airport Routes)"
+subtitle: "How working scientists run the test with scipy's chi2_contingency()"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  The practical, everyday approach to the chi-square test of independence in
+  Python. Passes the observed counts to scipy.stats.chi2_contingency(), checks
+  assumptions, inspects residuals, reports an effect size, and writes up the
+  result.
+categories: [chi-square, python, scipy, pandas]
+jupyter: python3
+format:
+  html:
+    code-tools: true
+    toc-depth: 3
+execute:
+  echo: true
+  freeze: auto
+---
+
+## What you will learn
+
+This is the third page in a series that runs one analysis three ways, all on the same data (`airport_route_survey.csv`, from the [Data Maker](data-maker.qmd) page):
+
+1. [The pencil-and-paper lesson](chi2-example-tutorial-airport.qmd) shows every calculation by hand.
+2. [The Python lesson](chi2-example-tutorial-airport-python.qmd) rebuilds each step in code with pandas and numpy.
+3. **This page** shows what scientists ordinarily do: hand the observed counts to a well-tested function and spend the saved effort on checking assumptions and interpreting results.
+
+By the end of this lesson you will be able to:
+
+- Run a chi-square test of independence with `chi2_contingency()`.
+- Unpack its results: statistic, p-value, degrees of freedom, and expected values.
+- Check that the test's assumptions are reasonable.
+- Find out *which* cells drive a significant result.
+- Report an effect size (Cramér's V), not just a p-value.
+- Wrap the whole workflow in a reusable function and write up the result.
+
+::: {.callout-note}
+## Why learn the long way first?
+
+The function below does in one call what took pages in the earlier lessons. It is only trustworthy in your hands if you know what it does. Everything it returns, you have already calculated: the expected values, the chi-square statistic, the degrees of freedom, and the p-value.
+:::
+
+## Load the data and count
+
+```{python}
+import numpy as np
+import pandas as pd
+from scipy.stats import chi2_contingency
+from IPython.display import display, Markdown
+
+survey = pd.read_csv("airport_route_survey.csv")
+
+origins = ["Madison native", "Greater Madison native", "Transplant"]
+routes = ["North", "Isthmus", "South"]
+
+observed = pd.crosstab(survey["origin"], survey["route"]).loc[origins, routes]
+```
+
+```{python}
+#| label: tbl-observed
+#| tbl-cap: "Observed counts of origin by route."
+
+display(Markdown(observed.rename_axis("Origin").to_markdown()))
+```
+
+`observed` stays a pandas DataFrame here. Keeping the labels attached is a real advantage over the bare numpy arrays of the previous lesson, since results can be labeled without extra work.
+
+The hypotheses are unchanged:
+
+- **$H_0$:** The route a traveler takes to the airport is independent of where the traveler is from.
+- **$H_1$:** The route a traveler takes to the airport depends on where the traveler is from.
+
+## The one-line test
+
+```{python}
+result = chi2_contingency(observed)
+for i, attr in enumerate(result):
+    print(f"{i}: {attr}")
+```
+
+That is the whole test. The function takes the table of observed counts (a DataFrame or a numpy array) and returns a result object with four named parts.
+
+| Attribute | What it is | Where it appeared before |
+|-----------|------------|--------------------------|
+| `result.statistic` | The chi-square statistic | Sum of normalized squared errors |
+| `result.pvalue` | The p-value | `stats.chi2.sf(chi2, df)` |
+| `result.dof` | Degrees of freedom | (rows − 1) × (columns − 1) |
+| `result.expected_freq` | Matrix of expected values | row total × column total ÷ grand total |
+
+: The parts of the result. {#tbl-result-parts}
+
+```{python}
+print(f"Chi-square statistic: {result.statistic:.4f}")
+print(f"Degrees of freedom:   {result.dof}")
+print(f"p-value:              {result.pvalue:.2e}")
+```
+
+These match the values found by hand and with loops: $\chi^2$ = `{python} f"{result.statistic:.4f}"`, $df$ = `{python} result.dof`, and $p$ = `{python} f"{result.pvalue:.1e}"`.
+
+::: {.callout-tip}
+## Unpacking the result
+
+The result also behaves like a plain tuple, so you may see older code such as:
+
+```python
+chi2, p, dof, expected = chi2_contingency(observed)
+```
+
+Named attributes (`result.pvalue`) are easier to read and are the better habit in new code.
+:::
+
+## Check the assumptions
+
+The chi-square test is an approximation, and it works well only under some conditions. Before trusting the p-value, check:
+
+1. **Two categorical variables.** Yes: origin and route.
+2. **Independent observations.** Each respondent appears once and answers once. (This is a matter of study design, not something code can check.)
+3. **Adequate expected counts.** A common rule of thumb is that every expected count should be at least 5.
+
+The third condition is easy to check because the function already returned the expected values. We wrap them in a DataFrame with the same labels as the observed table.
+
+```{python}
+#| label: tbl-expected
+#| tbl-cap: "Expected counts under independence."
+
+expected = pd.DataFrame(
+    result.expected_freq, index=observed.index, 
+    columns=observed.columns)
+
+display(
+    Markdown(
+        expected.rename_axis("Origin").to_markdown(floatfmt=".2f")))
+```
+
+```{python}
+print(f"Smallest expected count: {expected.to_numpy().min():.2f}")
+print(f"All expected counts >= 5: {(expected >= 5).to_numpy().all()}")
+```
+
+The smallest expected count is `{python} f"{expected.to_numpy().min():.2f}"`, comfortably above 5, so the approximation is fine.
+
+::: {.callout-warning}
+## When expected counts are too small
+
+If some expected counts fall below 5, consider combining sparse categories, collecting more data, or (for a 2 × 2 table) using Fisher's exact test, `scipy.stats.fisher_exact()`.
+:::
+
+::: {.callout-note}
+## What about the "correction" argument?
+
+`chi2_contingency()` has a `correction=True` default. It applies Yates' continuity correction, but only when the degrees of freedom equal 1 (a 2 × 2 table). For tables larger than 2 × 2, such as this 3 × 3 table, it changes nothing.
+:::
+
+## Which cells drive the result?
+
+A significant chi-square statistic says *something* differs from independence, not *what*. To find out, look at the standardized (Pearson) residuals:
+
+$$
+\text{residual} = \frac{Observed - Expected}{\sqrt{Expected}}
+$$ {#eq-residual}
+
+Residuals beyond about ±2 stand out, since values in that range would be unusual under independence. The sign tells you the direction: positive means more than expected, negative means fewer. Squaring each residual gives the normalized squared errors from the earlier lessons, so these are the same building blocks.
+
+```{python}
+#| label: tbl-residuals
+#| tbl-cap: "Standardized residuals. Values beyond ±2 indicate cells that depart from independence."
+
+residuals = (observed - expected) / np.sqrt(expected)
+
+display(
+    Markdown(
+        residuals.rename_axis("Origin").round(2).to_markdown(floatfmt=".2f")))
+```
+
+Reading @tbl-residuals:
+
+- Madison natives took the Isthmus route more than expected (residual above +3) and the South route less than expected (below −3).
+- Greater Madison natives took the Isthmus route less than expected and the South route more than expected.
+- Transplants are much closer to what independence predicts.
+
+A heat map makes patterns like this easier to see. The `.style` accessor in pandas can color a table without any plotting library.
+
+```{python}
+#| label: tbl-residuals-styled
+#| tbl-cap: "Standardized residuals as a heat map (red is more than expected, blue is fewer)."
+
+residuals.round(2).style.background_gradient(
+    cmap="RdBu_r", vmin=-4, vmax=4).format("{:.2f}")
+```
+
+## How big is the effect?
+
+With a large enough sample, even a tiny departure from independence is "significant." So a p-value alone does not tell you whether a relationship matters in practice. An effect size can give more nuance to the interpretation. For chi-square tests, a standard choice is Cramér's V:
+
+$$
+V = \sqrt{\frac{\chi^2}{n \times \min(rows - 1,\ columns - 1)}}
+$$ {#eq-cramers-v}
+
+V runs from 0 (no association) to 1 (perfect association).
+
+```{python}
+n = observed.to_numpy().sum()
+k = min(observed.shape) - 1
+
+cramers_v = np.sqrt(result.statistic / (n * k))
+print(f"Cramér's V: {cramers_v:.3f}")
+```
+
+A common guide for interpreting V depends on the smaller table dimension, as shown in @tbl-cramers-v-guide. Here `min(rows − 1, columns − 1)` is 2.
+
+| Smaller dimension − 1 | Small | Medium | Large |
+|:---------------------:|:-----:|:------:|:-----:|
+| 1 | 0.10 | 0.30 | 0.50 |
+| 2 | 0.07 | 0.21 | 0.35 |
+| 3 | 0.06 | 0.17 | 0.29 |
+
+: Rough guide for interpreting Cramér's V (Cohen's conventions). {#tbl-cramers-v-guide}
+
+With V = `{python} f"{cramers_v:.2f}"` and a smaller dimension − 1 of 2, the relationship is somewhere between medium and large. The result is not only statistically significant but also substantial.
+
+## Wrap it in a function
+
+Once you have done the analysis a few times, put the routine parts in a function so that any pair of categorical columns can be tested with one call.
+
+```{python}
+def chi2_report(data, row_var, col_var, row_order=None, col_order=None):
+    """Run a chi-square test of independence on two categorical columns."""
+    table = pd.crosstab(data[row_var], data[col_var])
+    if row_order is not None:
+        table = table.loc[row_order]
+    if col_order is not None:
+        table = table[col_order]
+
+    res = chi2_contingency(table)
+    expected = pd.DataFrame(
+        res.expected_freq, index=table.index, 
+        columns=table.columns)
+
+    n = table.to_numpy().sum()
+    v = np.sqrt(res.statistic / (n * (min(table.shape) - 1)))
+
+    return {
+        "observed": table,
+        "expected": expected,
+        "residuals": (table - expected) / np.sqrt(expected),
+        "chi2": res.statistic,
+        "dof": res.dof,
+        "n": n,
+        "p": res.pvalue,
+        "cramers_v": v,
+        "min_expected": expected.to_numpy().min(),
+    }
+```
+
+```{python}
+report = chi2_report(survey, "origin", "route", origins, routes)
+
+print(f"chi2({report['dof']}, N = {report['n']}) = {report['chi2']:.2f}, "
+      f"p = {report['p']:.2e}, V = {report['cramers_v']:.2f}")
+```
+
+Because the function takes column names as arguments, we can reuse it immediately on a different question. Here we check the survey against itself with the roles of the variables swapped. The chi-square statistic is symmetric, so the answer is the same.
+
+```{python}
+swapped = chi2_report(survey, "route", "origin", routes, origins)
+
+print(f"chi2({swapped['dof']}, N = {swapped['n']}) = {swapped['chi2']:.2f}, "
+      f"p = {swapped['p']:.2e}, V = {swapped['cramers_v']:.2f}")
+```
+
+## Make the decision and write it up
+
+The decision rule is the same as before: If the p-value is below the significance level (conventionally 0.05), reject the null hypothesis.
+
+```{python}
+alpha = 0.05
+print("Reject H0" if report["p"] < alpha else "Fail to reject H0")
+```
+
+A typical write-up for a report or manuscript states the statistic, the degrees of freedom, the sample size, the p-value, and the effect size:
+
+> A chi-square test of independence found a significant association between where travelers are from and the route they take to the airport, $\chi^2$(`{python} report['dof']`, *N* = `{python} report['n']`) = `{python} f"{report['chi2']:.2f}"`, *p* < .001, Cramér's *V* = `{python} f"{report['cramers_v']:.2f}"`. Madison natives took the Isthmus route more often than expected, and Greater Madison natives took the South route more often than expected.
+
+::: {.callout-warning}
+## What this does and does not tell you
+
+Rejecting the null hypothesis tells us the two variables are related. It does not show that where a person is from *causes* their route choice, and it says nothing beyond the population that was sampled. Remember also that the data here are fictional, and the Data Maker page deliberately built the relationship into them.
+:::
+
+## Which approach should you use?
+
+| Approach | Use it when |
+|----------|-------------|
+| [Pencil and paper](chi2-example-tutorial-airport.qmd) | You are learning, teaching, or want to be sure you understand the test |
+| [Step-by-step Python](chi2-example-tutorial-airport-python.qmd) | You want to see (or explain) each intermediate matrix in code |
+| **`chi2_contingency()`** | You are doing real analysis: fewer mistakes, less code, and time for the checks that matter |
+
+: Choosing an approach. {#tbl-choosing}
+
+All three give the same answer, as they should.
+
+## Your turn
+
+1. Combine Madison native and Greater Madison native into a single "Native" group and use `chi2_report()` on the result. The earlier lessons found $\chi^2 = 7.2311$ with 2 degrees of freedom. What is Cramér's V?
+2. Use `report["residuals"]` to describe in a sentence which origin and route combinations are most different from independence.
+3. Does the survey show that the *data generation process* is working as planned? The Data Maker page set Madison natives to 40% North / 40% Isthmus / 20% South. How close are the observed row percentages in `observed.div(observed.sum(axis=1), axis=0)`?
+
+::: {.callout-tip collapse="true"}
+## Answer to question 1
+
+```{python}
+combined = survey.assign(
+    origin=survey["origin"].replace(
+        {"Madison native": "Native", "Greater Madison native": "Native"}))
+
+r2 = chi2_report(combined, "origin", "route", ["Native", "Transplant"], routes)
+
+print(f"chi2({r2['dof']}, N = {r2['n']}) = {r2['chi2']:.4f}, "
+      f"p = {r2['p']:.4f}, V = {r2['cramers_v']:.2f}")
+```
+
+The association is significant but weaker than with three groups, which is a small-to-medium effect for a table with 2 rows.
+:::
+
+::: {.callout-tip collapse="true"}
+## Answer to question 3
+
+```{python}
+#| label: tbl-row-pct
+#| tbl-cap: "Row percentages: the share of each origin group using each route."
+
+row_pct = observed.div(observed.sum(axis=1), axis=0) * 100
+display(
+    Markdown(
+        row_pct.rename_axis("Origin").to_markdown(floatfmt=".1f")))
+```
+
+With only 300 respondents, and only about 72 in the smallest group, sample percentages wander from the planned probabilities by several points.
+:::
+
+## Summary
+
+1. Build the observed table with `pd.crosstab()`.
+2. Pass it to `chi2_contingency()`. Read `statistic`, `pvalue`, `dof`, and `expected_freq` from the result.
+3. Check that the expected counts are at least 5.
+4. Inspect standardized residuals to see which cells drive the result.
+5. Report an effect size such as Cramér's V alongside the p-value.
+6. Wrap the routine in a function for reuse.
+7. If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.

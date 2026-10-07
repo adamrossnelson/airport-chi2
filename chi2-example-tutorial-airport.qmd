@@ -1,0 +1,470 @@
+---
+title: "Chi-Square Test of Independence: A Worked Example (Airport Routes)"
+subtitle: "A self-paced lesson on testing whether two categorical variables are related"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  A step-by-step, self-paced walkthrough of the chi-square test of
+  independence, using a fictional survey of Southwestern Madison travelers
+  and their routes to the airport. Includes a reference table of chi-square
+  critical values.
+categories: [chi-square, statistics, hypothesis testing]
+jupyter: python3
+execute:
+  echo: false
+  freeze: auto
+---
+
+## What you will learn
+
+By the end of this lesson you will be able to:
+
+- Explain what a chi-square test of independence is used for.
+- State a null hypothesis and an alternative hypothesis for a chi-square test.
+- Calculate expected values from a table of counts.
+- Calculate the chi-square statistic, one cell at a time, pencil and paper-style.
+- Find the degrees of freedom and use a table to estimate a p-value.
+- Decide whether to reject or fail to reject the null hypothesis.
+
+If you are new to statistics or programming, you're in a good place. You do not need any background in statistics or programming. Everything in this lesson is arithmetic: adding, subtracting, multiplying, dividing, and squaring. A calculator or a spreadsheet is helpful but not required.
+
+This example will also be helpful for those looking for a refresher in chi-square analysis.
+
+## The big idea
+
+Sometimes we want to know whether two categorical variables are related. A categorical variable is one whose values are categories rather than numbers, like a favorite color, a type of program, or a choice of route.
+
+::: {.callout-note}
+## Refresher: what is a categorical variable?
+
+A categorical variable records which group an observation belongs to. You will also see these called nominal variables. The two terms are effectively interchangeable in scientific use. When the categories have a natural order (small, medium, large) some texts split them off as ordinal.
+
+Examples of categorical / nominal variables:
+
+- Favorite color: red, blue, green
+- Route to the airport: North, Isthmus, South
+- Where a person is from: Madison native, Greater Madison native, Transplant
+- Post-high-school outcome: work, tech school, college, military
+
+The chi-square test of independence expects two categorical variables. If one of your variables is a count or a continuous measurement, you would usually reach for a different tool (a t-test, ANOVA, correlation, or regression, depending on the question).
+:::
+
+The chi-square test of independence (chi rhymes with *sky*) helps us decide between two possibilities:
+
+- The two variables are independent: Knowing one cannot help you predict the other.
+- The two variables are dependent: Knowing one can help you predict the other.
+
+## The scenario
+
+Imagine the airport commissioned a survey of travelers who live in the Southwestern part of the Madison, Wisconsin metropolitan area. (The data are fictional. They were created on the [Data Maker](data-maker.qmd) page and can be previewed on the [Data Preview](data-preview.qmd) page.) The survey asked each respondent two questions.
+
+Which route do you usually take to the airport?
+
+- North: around the top of Lake Mendota
+- Isthmus: straight through downtown on the isthmus
+- South: east on the Beltline, then north to the airport
+
+Where are you from?
+
+- Madison native
+- Greater Madison native
+- Transplant: raised somewhere else, moved to Madison for work or other reasons
+
+Every respondent gave exactly one answer to each question. There were 300 respondents in total.
+
+**Research question:** Does the route people take to the airport relate to where they are from?
+
+## The hypotheses
+
+Every statistical test begins with two competing statements called hypotheses.
+
+- **Null hypothesis:** There is no relationship. The route a traveler takes to the airport is independent of where the traveler is from.
+- **Alternative hypothesis:** There is a relationship. The route a traveler takes to the airport depends on where the traveler is from.
+
+The test works by assuming the null hypothesis is true, and then asking how surprising our data would be if that were so. If the data would be very surprising, we reject the null hypothesis.
+
+## The data
+
+The data is summarized in a **cross tabulation**, which is a table of counts. Each row is an origin and each column is a route. Each box in the table is called a **cell**, and each cell counts the respondents who share that row *and* that column.
+
+For example, 18 respondents were Madison natives who usually take the North route.
+
+| Origin                     | North | Isthmus | South | **TOTAL** |
+|----------------------------|------:|--------:|------:|----------:|
+| **Madison native**         |    18 |      62 |    31 |       111 |
+| **Greater Madison native** |     9 |      12 |    51 |        72 |
+| **Transplant**             |    13 |      33 |    71 |       117 |
+| **TOTAL**                  |    40 |     107 |   153 |       300 |
+
+: Observed counts, airport route survey. {#tbl-observed}
+
+The table has three kinds of totals, which you will use again and again:
+
+- **Row total:** (right-hand column) is the number of respondents from one origin.
+- **Column total:** (bottom row) is the number of respondents who take one route.
+- **Grand total:** (bottom-right corner) is the number of respondents overall.
+
+The counts in the table, the numbers we actually saw, are called the observed values.
+
+::: {.callout-note}
+## A word about matrices
+
+A grid of numbers arranged in rows and columns is called a matrix (sounds fancier than it is). The core of the table above, without the totals, is a matrix with 3 rows and 3 columns. In this lesson you will build two more matrices of the same size. Doing the same calculation "for every cell in the matrix" is a pattern you will see often, especially once we move to Python.
+:::
+
+## The formula
+
+Here is the formula for the chi-square statistic, which is often written as χ² or X²:
+
+$$
+\chi^2 = \sum_{i=1}^{n} \frac{(Observed_i - Expected_i)^2}{Expected_i}
+$$ {#eq-chi2}
+
+In plain words, for each cell:
+
+1. Subtract the expected values (the values you will calculate from the observed data) from the observed value (the actual values in the observed table).
+2. Square that difference (the differences between observed and expected are known as the errors).
+3. Divide by the expected value for that cell.
+
+Then add up the results from every cell. The symbol Σ (sigma) means "add up," and the little *i* simply means "for each cell, one at a time."
+
+You already have the observed values. The next step is to find the expected values.
+
+## Step 1: Calculate the expected values
+
+### What is an expected value?
+
+An expected value answers this question: If the null hypothesis were true and there were no relationship, how many respondents would we expect to see in this cell? The expected value tells us what the counts would be if where a person is from made no difference to the route they take.
+
+If origin made no difference, then each origin group would use each route in the same proportions as the group overall. The expected values capture exactly that.
+
+### The recipe
+
+For each cell:
+
+$$
+Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
+$$ {#eq-expected}
+
+In the examples below, the colorful rings around numbers and figures help show which numbers to use, when, and how:
+
+- [cell]{.ring-green} the cell you are working on
+- [row total]{.ring-red} that cell's row total
+- [column total]{.ring-blue} that cell's column total
+- [grand total]{.ring-gold} the grand total
+
+### Worked example 1: Madison native, North
+
+| Origin                 | North | Isthmus | South | **TOTAL** |
+|------------------------|------:|--------:|------:|----------:|
+| **Madison native**         | [18]{.ring-green aria-label="cell value"} | 62 | 31 | [111]{.ring-red aria-label="row total"} |
+| **Greater Madison native** | 9 | 12 | 51 | 72 |
+| **Transplant**             | 13 | 33 | 71 | 117 |
+| **TOTAL**                  | [40]{.ring-blue aria-label="column total"} | 107 | 153 | [300]{.ring-gold aria-label="grand total"} |
+
+: Worked example 1 with Madison native, North. {#tbl-ex1-rings}
+
+$$
+Expected = \frac{111 \times 40}{300} = \frac{4{,}440}{300} = 14.8
+$$ {#eq-expected-ex1}
+
+If there were no relationship, we would expect about 14.8 respondents in this cell. We actually observed 18.
+
+### Worked example 2: Greater Madison native, Isthmus
+
+| Origin                     | North | Isthmus | South | **TOTAL** |
+|----------------------------|------:|--------:|------:|----------:|
+| **Madison native**         | 18    | 62      | 31    | 111       |
+| **Greater Madison native** | 9     | [12]{.ring-green aria-label="cell value"} | 51 | [72]{.ring-red aria-label="row total"} |
+| **Transplant**             | 13    | 33      | 71    | 117       |
+| **TOTAL**                  | 40    | [107]{.ring-blue aria-label="column total"} | 153 | [300]{.ring-gold aria-label="grand total"} |
+
+: Worked example 2 with Greater Madison native, Isthmus. {#tbl-ex2-rings}
+
+$$
+Expected = \frac{72 \times 107}{300} = \frac{7{,}704}{300} = 25.68
+$$ {#eq-expected-ex2}
+
+Notice that the recipe never changes. Only the row and column you look up change as you move from cell to cell through the matrix.
+
+### The full matrix of expected values
+
+Repeat the recipe for all 9 cells to get the expected values.
+
+| Origin                     | North | Isthmus | South |
+|----------------------------|------:|--------:|------:|
+| **Madison native**         | [14.80]{.ring-green aria-label="expected value for the highlighted cell"} | 39.59 | 56.61 |
+| **Greater Madison native** | 9.60 | [25.68]{.ring-green aria-label="expected value for the highlighted cell"} | 36.72 |
+| **Transplant**             | 15.60 | 41.73   | 59.67 |
+
+: Expected values. {#tbl-expected}
+
+::: {.callout-tip}
+## Check your work
+
+The expected values in each row should add up to that row's total, and the expected values in each column should add up to that column's total. For example, 14.80 + 39.59 + 56.61 = 111, which is the row total for Madison native. If your sums do not match, look for an arithmetic slip.
+:::
+
+## Step 2: Calculate the normalized errors
+
+Next, compare each observed value with its expected value. For each cell, calculate:
+
+$$
+\frac{(Observed - Expected)^2}{Expected}
+$$ {#eq-normerror}
+
+This quantity is sometimes called a normalized error. The difference (observed minus expected) is the error. Squaring it makes every error positive, so errors in opposite directions cannot cancel each other out. Dividing by the expected value puts each error in proportion to the size of its cell.
+
+Notice that the expected matrix is used twice here: Once to find the difference, and again to divide.
+
+### Worked example: Madison native, North
+
+- Observed: [18]{.ring-red aria-label="observed value"} (from @tbl-observed)
+- Expected: [14.80]{.ring-blue aria-label="expected value"} (from @tbl-expected)
+
+$$
+\frac{(18 - 14.8)^2}{14.8} = \frac{(3.2)^2}{14.8} = \frac{10.24}{14.8} = 0.692
+$$ {#eq-normerror-ex1}
+
+### A second example: Greater Madison native, Isthmus
+
+$$
+\frac{(12 - 25.68)^2}{25.68} = \frac{(-13.68)^2}{25.68} = \frac{187.142}{25.68} = 7.287
+$$ {#eq-normerror-ex2}
+
+Here the difference was negative, but squaring it made the result positive.
+
+### The full matrix of normalized errors
+
+| Origin                     | North | Isthmus | South |
+|----------------------------|------:|--------:|------:|
+| **Madison native**         | 0.692 | 12.685  | 11.586 |
+| **Greater Madison native** | 0.037 |  7.287  |  5.553 |
+| **Transplant**             | 0.433 |  1.826  |  2.151 |
+
+: Normalized errors. {#tbl-errors}
+
+Large numbers point to cells where the observed count is far from what we would expect under no relationship. The biggest contributors are in the Isthmus and South columns for Madison natives: Madison natives took the Isthmus route more than expected (62 versus about 40) and the South route less than expected (31 versus about 57). Greater Madison natives took the Isthmus route less than expected (12 versus about 26) and the South route more than expected (51 versus about 37).
+
+## Step 3: Add them up to get the chi-square statistic
+
+The chi-square statistic is the sum of all the normalized errors:
+
+$$
+\begin{aligned}
+\chi^2 &= 0.692 + 12.685 + 11.586 \\
+       &\quad + 0.037 + 7.287 + 5.553 \\
+       &\quad + 0.433 + 1.826 + 2.151
+\end{aligned}
+$$ {#eq-chi2-sum}
+
+$$
+\chi^2 = 42.2522
+$$ {#eq-chi2-result}
+
+That's it. A few simple operations, repeated across the matrix, give us our chi-square statistic. This chi-square statistic is the statistic you will want to report in your manuscript, report, or results. You'll also want to report the degrees of freedom (discussed below). Ultimately you'll need this chi-square statistic in addition to the degrees of freedom to find the p-value, which is what will inform your decision on whether to reject (or fail to reject) the null hypothesis. Typically, you will also report the p-value when reporting your results.
+
+::: {.callout-note}
+## Rounding
+
+If you add the rounded values above, you get 42.250. The value 42.2522 comes from carrying all the decimal places through each step. Small differences in the last decimal place are normal and do not change the conclusion.
+:::
+
+## Step 4: Find the degrees of freedom
+
+To turn the chi-square statistic into a p-value, we need one more number, called the degrees of freedom (often written as *df*). For a chi-square test of independence:
+
+$$
+df = (\text{number of rows} - 1) \times (\text{number of columns} - 1)
+$$ {#eq-df}
+
+Count only the rows and columns of categories, not the totals. Our table has 3 origins and 3 routes:
+
+$$
+df = (3 - 1) \times (3 - 1) = 2 \times 2 = 4
+$$ {#eq-df-calc}
+
+## Step 5: Find the p-value and make a decision
+
+### What a p-value tells you
+
+The p-value is the probability of getting results as extreme as ours, or more extreme, if the null hypothesis were true. A small p-value means our data would be surprising in a world with no relationship.
+
+We compare the p-value to a cutoff called the significance level. The conventional significance level is 0.05.
+
+- If the p-value is less than 0.05, we reject the null hypothesis and conclude there is a relationship.
+- If the p-value is 0.05 or greater, we fail to reject the null hypothesis. We do not have enough evidence of a relationship.
+
+### Using the table
+
+The chi-square reference table (@tbl-chi2-critical) at the end of this lesson lets you estimate the p-value. It is a **right-tailed** table: the column headings are p-values, and the numbers inside the table are chi-square statistics. Bigger chi-square statistics sit farther to the right, where the p-values are smaller.
+
+To use it:
+
+1. Find the row that matches your degrees of freedom.
+2. Move across that row until you find where your chi-square statistic fits between two numbers.
+3. Read the p-values at the top of those two columns. Your p-value lies between them.
+
+### The result
+
+Here is an excerpt of the reference table, showing degrees of freedom 3 through 5 so you can see how the critical values change from row to row. The row we actually need (4 degrees of freedom) and the column we land beyond are both circled:
+
+| df | 0.995 | 0.99 | 0.975 | 0.95 | 0.90 | 0.10 | 0.05 | 0.025 | 0.01 | [0.005]{.ring-blue aria-label="0.005 significance level column"} |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **3** | 0.072 | 0.115 | 0.216 | 0.352 | 0.584 | 6.251 | 7.815 | 9.348 | 11.345 | 12.838 |
+| [**4**]{.ring-green aria-label="row for 4 degrees of freedom"} | 0.207 | 0.297 | 0.484 | 0.711 | 1.064 | 7.779 | 9.488 | 11.143 | 13.277 | [14.860]{.ring-blue aria-label="critical value at the 0.005 significance level"} |
+| **5** | 0.412 | 0.554 | 0.831 | 1.145 | 1.610 | 9.236 | 11.070 | 12.833 | 15.086 | 16.750 |
+
+: Critical values for degrees of freedom 3 through 5, with the row for 4 degrees of freedom highlighted. {#tbl-df4-row}
+
+Now walk through how to read this, one step at a time:
+
+1. **Find the right row.** Our test has 4 degrees of freedom, so every comparison happens along the circled row (ignore the rows for 3 and 5). We show these additional rows here only so you can see the pattern of critical values rising with df.
+2. **Scan left to right along that row.** The numbers in the row are the chi-square statistic you would need to reach to hit each p-value at the top of the table. As you move right, the p-values shrink (0.995 down to 0.005), and the critical values grow.
+3. **Place your own chi-square statistic among them.** Our statistic is [42.2522]{.ring-green aria-label="calculated chi-square statistic"}. Compare this value to each critical value in the row. It's bigger than 13.277 (the value under the 0.01 column), and it's also bigger than 14.860 (the value under the circled 0.005 column).
+4. **Notice it's bigger than every value in the row.** Because 42.2522 exceeds even the critical value in the smallest p-value column the table shows (0.005), our result is more extreme than anything this row directly reports.
+5. **Translate that into a p-value.** A chi-square statistic that clears the 0.005 column's critical value means the true p-value is smaller than 0.005. This is as precise as the printed table alone can get you. It tells you a ceiling (p < 0.005), not an exact number.
+6. **Confirm with the exact value.** Software can compute the precise p-value instead of just bounding it. Here, the exact p-value is about 0.000000015 (1.5 × 10⁻⁸), which is indeed smaller than 0.005 (consistent with what the table told us).
+
+::: {.callout-note}
+## Finding exact p-values before software
+
+Today, getting an exact p-value is one function call away. That convenience is fairly new. For most of the history of this test, researchers had no computer to ask, so they relied on printed tables like the one above.
+
+Someone, working by hand or with an early mechanical calculator, had to work out the chi-square distribution's shape for every degree of freedom and figure out exactly which value cut off the top 0.005 (or 0.05, or 0.10) of that distribution's area. That's a calculus problem, not an arithmetic problem, and it isn't something you can do quickly with pencil and paper for even one value, let alone hundreds. So statisticians did that hard work once, wrote the answers down in reference tables like this one, and everyone else just looked up their result the same way you might look up a word in a dictionary rather than working out its definition from scratch every time.
+
+That's also why these tables only show a handful of columns like 0.10, 0.05, 0.025, and 0.005, instead of every possible p-value. If your chi-square statistic landed between two columns, or beyond the last one like ours did, the most honest answer available to a researcher in, say, 1950 was a range: "somewhere less than 0.005," not an exact figure.
+
+This is part of why the reject/fail-to-reject language exists at all. Historically, decisions were built around comparing a calculated statistic to a small handful of tabulated thresholds, not around reading off one precise, always-available number. Today, software has just replaced the physical page and closed the gap between columns.
+:::
+
+**Decision:** The p-value is less than 0.05, so we reject the null hypothesis. There is evidence in favor of believing that there is a relationship between where travelers are from and the route they take to the airport. We have not proven that there is a relationship. We have not proven that being from a certain place causes a traveler to choose a certain route. Merely we have rejected the null hypothesis that there is no relationship, which then means we would tend to believe the alternative hypothesis.
+
+Reminder on the null and alternative hypotheses:
+
+- **Null hypothesis ($H_0$):** There is no relationship between where travelers are from and the route they take to the airport.
+- **Alternative hypothesis ($H_1$):** There is a relationship between where travelers are from and the route they take to the airport.
+
+## Your turn: Combining the native groups
+
+Now try the full process yourself with a slightly different question. Suppose the airport does not care about the difference between Madison natives and Greater Madison natives. Combine those two rows into a single "Native" row and ask: **Does the route travelers take relate to whether they are a native or a transplant?**
+
+Here are the observed values for the combined table. (Add the Madison native and Greater Madison native rows from @tbl-observed to check the first row.)
+
+| Origin         | North | Isthmus | South | **TOTAL** |
+|----------------|------:|--------:|------:|----------:|
+| **Native**     |    27 |      74 |    82 |       183 |
+| **Transplant** |    13 |      33 |    71 |       117 |
+| **TOTAL**      |    40 |     107 |   153 |       300 |
+
+: Observed counts, natives combined. {#tbl-combined-observed}
+
+Work through each step:
+
+1. Calculate the 6 expected values (row total × column total ÷ grand total).
+2. Calculate the 6 normalized errors ((observed − expected)² ÷ expected).
+3. Add up the normalized errors to get the chi-square statistic.
+4. Find the degrees of freedom. (Careful: the table now has only 2 rows.)
+5. Use the table to estimate the p-value and make a decision.
+
+When you have finished, expand the answers below to check your work.
+
+::: {.callout-tip collapse="true"}
+## Answers: expected values
+
+| Origin         | North | Isthmus | South |
+|----------------|------:|--------:|------:|
+| **Native**     | 24.40 | 65.27   | 93.33 |
+| **Transplant** | 15.60 | 41.73   | 59.67 |
+
+: Expected values, natives combined. {#tbl-combined-expected}
+:::
+
+::: {.callout-tip collapse="true"}
+## Answers: normalized errors
+
+| Origin         | North | Isthmus | South |
+|----------------|------:|--------:|------:|
+| **Native**     | 0.277 | 1.168   | 1.375 |
+| **Transplant** | 0.433 | 1.826   | 2.151 |
+
+: Normalized errors, natives combined. {#tbl-combined-errors}
+:::
+
+::: {.callout-tip collapse="true"}
+## Answers: chi-square, p-value, and decision
+
+- Chi-square statistic: 7.2311
+- Degrees of freedom: (2 − 1) × (3 − 1) = 2
+- In the row for 2 degrees of freedom, 7.2311 falls between 5.991 (the 0.05 column) and 7.378 (the 0.025 column). So the p-value is between 0.025 and 0.05. (The exact p-value is 0.027.)
+
+**Decision:** The p-value is less than 0.05, so we reject the null hypothesis. There is evidence of a relationship between being a native or a transplant and the route travelers take to the airport.
+:::
+
+## Interpreting the two analyses together
+
+Both analyses led to the same decision, but the evidence was much stronger when we kept the three origin groups separate (p about 0.000000015) than when we combined the two native groups (p about 0.027). Combining categories threw away information: Madison natives and Greater Madison natives behave differently from each other, and lumping them together blurred that difference.
+
+Keep in mind, too, that a chi-square test tells you whether two variables are related. It does not, on its own, tell you that one variable caused the other. It also does not tell you which cells drive the result. The normalized errors help with that, because they point to the cells that contribute the most.
+
+Remember also that the data here are fictional, and that we built the relationship into the data ourselves on the Data Maker page. In real survey work you would also want to think about how respondents were selected, since a sample that is not representative of travelers can distort the results.
+
+## Other ways to get the p-value
+
+The table gives you a range. Software can give you the exact p-value. In Excel, there are two functions for this.
+
+Excel's function `CHISQ.TEST()` compares the observed values with the expected values and returns the p-value directly. You give it the observed range first and the expected range second:
+
+```
+=CHISQ.TEST(observed range, expected range)
+```
+
+Excel's function `CHISQ.DIST.RT()` converts a chi-square statistic into a p-value. You give it the chi-square statistic and the degrees of freedom:
+
+```
+=CHISQ.DIST.RT(chi-square statistic, degrees of freedom)
+```
+
+For the combined-natives table, `=CHISQ.DIST.RT(7.2311, 2)` returns 0.027.
+
+In upcoming tutorials, you will learn to carry out this same analysis in Python. Every step you did by hand here, from the expected values to the final p-value, has a direct counterpart in code.
+
+There are also websites that will find the p-value for free if you know the chi2 and df statistics.
+
+- [Probabilities for the Chi‐Squared Distribution Calculator - WolframAplha.com](https://es.wolframalpha.com/calculators/mathematics-statistics-probability-distributions-probabilities-for-the-chi-squared-distribution-calculator)
+- [Chi-Square to P-Value Calculator - SocialStatistics.com](https://www.socscistatistics.com/pvalues/chidistribution/calculator/)
+- [P Value Calculator - GraphPad.com](https://www.graphpad.com/quickcalcs/pvalue1/)
+- [P-Value From Chi-Square Calculator - StatCalc.net](https://statcalc.net/p-value-from-chi-square-calculator/)
+
+## Summary
+
+1. State the null hypothesis (no relationship) and the alternative hypothesis (a relationship).
+2. Organize the observed counts in a cross tabulation with row, column, and grand totals.
+3. For each cell, calculate the expected value: row total × column total ÷ grand total.
+4. For each cell, calculate the normalized error: (observed − expected)² ÷ expected.
+5. Add up the normalized errors to get the chi-square statistic.
+6. Find the degrees of freedom: (rows − 1) × (columns − 1).
+7. Use the table (or software) to find the p-value.
+8. If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.
+
+## Reference A: Chi-square critical values {#sec-chi2-table}
+
+Find the row for your degrees of freedom. The column headings are right-tail p-values. If your chi-square statistic falls between two numbers in the row, your p-value falls between the two column headings.
+
+```{python}
+#| output: asis
+#| echo: true
+
+# Use scipy to create a table of p-values based on critical values and df
+from scipy import stats
+
+p_values = [0.995, 0.99, 0.975, 0.95, 0.90, 0.10, 0.05, 0.025, 0.01, 0.005]
+
+print("| df | " + " | ".join(str(p) for p in p_values) + " |")
+print("|---:|" + "---:|" * len(p_values))
+for df in range(1, 21):
+    row = [f"{stats.chi2.isf(p, df):.3f}" for p in p_values]
+    print(f"| **{df}** | " + " | ".join(row) + " |")
+print()
+print(": Chi-square critical values by degrees of freedom. {#tbl-chi2-critical}")
+```

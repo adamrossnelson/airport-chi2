@@ -1,0 +1,706 @@
+---
+title: "Chi-Square Test of Independence in Python (Airport Routes)"
+subtitle: "The same analysis as the pencil-and-paper lesson, one line of code at a time"
+author: "Adam Ross Nelson"
+date: last-modified
+description: >
+  A step-by-step Python walkthrough of the chi-square test of independence
+  using the airport route survey data. Uses only base Python, pandas, numpy,
+  and scipy's stats.chi2.sf(). Builds the analysis three ways: cell by cell,
+  with for loops, and with matrix operations.
+categories: [chi-square, python, pandas, numpy]
+jupyter: python3
+format:
+  html:
+    code-tools: true
+    code-line-numbers: false
+    toc-depth: 3
+execute:
+  echo: true
+  freeze: auto
+---
+
+## What you will learn
+
+This page is the Python companion to [Chi-Square Test of Independence: A Worked Example (Airport Routes)](chi2-example-tutorial-airport.qmd). That lesson does every calculation with pencil and paper. Here you will repeat the same analysis in code, on the real file produced by the [Data Maker](data-maker.qmd) page.
+
+By the end of this lesson you will be able to:
+
+- Load survey data with pandas and build a cross tabulation with `pd.crosstab()`.
+- Convert a cross tabulation into a numpy array.
+- Calculate expected values, errors, squared errors, and normalized squared errors.
+- Add the normalized squared errors to get the chi-square statistic.
+- Find the degrees of freedom and convert the chi-square statistic into a p-value with `stats.chi2.sf()`.
+- Do all of the above three ways: cell by cell, with `for` loops, and with matrix operations.
+
+::: {.callout-note}
+## Deliberately limited toolbox
+
+We use only base Python, pandas, numpy, and one function from scipy: `stats.chi2.sf()`. We will *not* use `chi2_contingency()` or any other function that performs the whole test in one call. Those are great tools once you understand the process, but the point of this lesson is to see every step.
+:::
+
+::: {.callout-tip}
+## Tip: Code tools
+
+Use the **</> Code** menu at the top right of this page to show or hide all of the code, or to view the page's source. Every code block also has a copy button on its top right corner.
+:::
+
+## The recipe at a glance
+
+The formula is the same one used in the pencil-and-paper lesson:
+
+$$
+\chi^2 = \sum \frac{(Observed - Expected)^2}{Expected}
+\qquad
+df = (rows - 1) \times (columns - 1)
+$$ {#eq-chi2}
+
+with each expected value calculated as:
+
+$$
+Expected = \frac{Row\ Total \times Column\ Total}{Grand\ Total}
+$$ {#eq-expected}
+
+Because we will build up the answer in small steps, here is the plan. Each step produces a matrix the same shape as the one before it:
+
+| Step | What we calculate | Matrix name |
+|:----:|-------------------|-------------|
+| 1 | Observed counts | `observed` |
+| 2 | Expected values (@eq-expected) | `expected` |
+| 3 | Errors: observed − expected | `errors` |
+| 4 | Squared errors | `sq_errors` |
+| 5 | Normalized squared errors: squared errors ÷ expected | `norm_errors` |
+| 6 | Add them up: the chi-square statistic (@eq-chi2) | `chi2` |
+| 7 | Degrees of freedom and the p-value | `df`, `p_value` |
+
+: The steps of a chi-square test, and the name we give each result. {#tbl-plan}
+
+## The data
+
+Start by importing the libraries and loading the survey. The file `airport_route_survey.csv` was written by the [Data Maker](data-maker.qmd) page, and you can browse all of its rows on the [Data Preview](data-preview.qmd) page.
+
+```{python}
+import numpy as np
+import pandas as pd
+from scipy import stats
+from IPython.display import display, Markdown
+
+survey = pd.read_csv("airport_route_survey.csv") # <1>
+survey.shape # <2>
+```
+
+1. Read the CSV into a data frame. Each row is one respondent.
+2. `.shape` returns (rows, columns). We expect 300 respondents.
+
+Take a peek at a few rows. Each respondent has an `origin` (where they are from) and a `route` (how they usually get to the airport).
+
+```{python}
+#| label: tbl-survey-head
+#| tbl-cap: "The first six rows of the airport route survey."
+
+display(Markdown(survey.head(6).to_markdown(index=False)))
+```
+
+The research question and hypotheses are the same as in the pencil-and-paper lesson:
+
+- **Null hypothesis ($H_0$):** The route a traveler takes to the airport is independent of where the traveler is from.
+- **Alternative hypothesis ($H_1$):** The route a traveler takes to the airport depends on where the traveler is from.
+
+## Step 1: The observed values
+
+`pd.crosstab()` counts how many respondents fall into each combination of two categorical variables. The first argument becomes the rows and the second becomes the columns. Setting `margins=True` adds the row, column, and grand totals.
+
+```{python}
+#| label: tbl-crosstab
+#| tbl-cap: "Cross tabulation of origin by route, with totals."
+
+pd.crosstab(survey["origin"], survey["route"], margins=True)
+```
+
+::: {.callout-note}
+## Column order
+
+Pandas sorts categories alphabetically, so the columns above come out as Isthmus, North, South. To match the order in the pencil-and-paper lesson, and to make the results easy to compare, we will impose our own order in the next step.
+:::
+
+For the calculations we do not want the totals in the matrix, since we will calculate them ourselves. We also want the rows and columns in a sensible order. We store the labels in two lists, then use them with `.loc[]` to reorder the table.
+
+```{python}
+origins = ["Madison native", "Greater Madison native", "Transplant"]
+routes = ["North", "Isthmus", "South"]
+
+crosstab = pd.crosstab(survey["origin"], survey["route"]).loc[origins, routes]
+crosstab
+```
+
+A numpy array is a bare grid of numbers, exactly the kind of "matrix" from the pencil-and-paper lesson. Numbers in a numpy array are addressed by position: `observed[0, 1]` is the number in row 0, column 1 (counting from zero).
+
+```{python}
+observed = crosstab.to_numpy()
+observed
+```
+
+```{python}
+observed[0, 0] # <1>
+```
+
+1. Row 0 is Madison native and column 0 is North, so this is the count of Madison natives who take the North route. It should match the 18 from the earlier lesson.
+
+Before going on, we create a small helper function. It wraps any 3-by-3 array with the row and column labels so that we can display it as a nicely formatted table. Nothing about the statistics happens in here.
+
+```{python}
+def show(matrix, digits=3):
+    """Display a 3x3 numpy array as a labeled Markdown table."""
+    labeled = pd.DataFrame(
+        matrix, index=origins, columns=routes)
+    
+    display(
+        Markdown(
+            labeled.rename_axis("Origin").to_markdown(
+                floatfmt=f".{digits}f")))
+```
+
+### The totals
+
+The expected values need the row totals, the column totals, and the grand total. numpy's `.sum()` takes an `axis` argument. `axis=1` adds *across* each row (giving one total per row) and `axis=0` adds *down* each column (giving one total per column).
+
+```{python}
+row_totals = observed.sum(axis=1)
+col_totals = observed.sum(axis=0)
+grand_total = observed.sum()
+
+print("Row totals:   ", row_totals)
+print("Column totals:", col_totals)
+print("Grand total:  ", grand_total)
+```
+
+These match the margins of @tbl-crosstab: 111, 72, and 117 respondents by origin; 40, 107, and 153 by route; and 300 overall.
+
+## Three ways to do the same thing
+
+The rest of this lesson performs steps 2 through 7 three times, using three different styles of coding. All three produce identical answers. The point is to see how the same idea can be expressed more and more compactly.
+
+| Approach | Style | Best for |
+|----------|-------|----------|
+| **A. Cell by cell** | One line of code per cell | Seeing exactly what happens; matches the paper method |
+| **B. For loops** | A nested loop visits every cell | Tables of any size; less typing |
+| **C. Matrix operations** | numpy works on every cell at once | Speed and brevity; how experienced analysts do it |
+
+: The three approaches. {#tbl-approaches}
+
+In every approach we will keep the steps separate (expected, errors, squared errors, normalized squared errors, sum) even where a single line could do several at once. Keeping steps separate means you can inspect and check each matrix.
+
+## Approach A: Cell by cell
+
+### Step 2: Expected values
+
+We first make an empty matrix to fill in. We use `np.full()` to fill it with `np.nan` ("not a number") instead of zeros. If we forget to fill a cell, a `nan` will stand out, whereas a zero could pass for a real value.
+
+```{python}
+expected_a = np.full((3, 3), np.nan)
+show(expected_a)
+```
+
+Now fill in the cells one at a time, using @eq-expected. Row 0 is Madison native, and the three columns are North, Isthmus, and South.
+
+```{python}
+# Row 0: Madison native
+expected_a[0, 0] = row_totals[0] * col_totals[0] / grand_total
+expected_a[0, 1] = row_totals[0] * col_totals[1] / grand_total
+expected_a[0, 2] = row_totals[0] * col_totals[2] / grand_total
+
+# Row 1: Greater Madison native
+expected_a[1, 0] = row_totals[1] * col_totals[0] / grand_total
+expected_a[1, 1] = row_totals[1] * col_totals[1] / grand_total
+expected_a[1, 2] = row_totals[1] * col_totals[2] / grand_total
+
+# Row 2: Transplant
+expected_a[2, 0] = row_totals[2] * col_totals[0] / grand_total
+expected_a[2, 1] = row_totals[2] * col_totals[1] / grand_total
+expected_a[2, 2] = row_totals[2] * col_totals[2] / grand_total
+```
+
+```{python}
+#| label: tbl-expected-a
+#| tbl-cap: "Expected values, calculated cell by cell."
+
+show(expected_a, digits=2)
+```
+
+Compare @tbl-expected-a with the expected values in the pencil-and-paper lesson. The first cell is $111 \times 40 \div 300 = 14.8$.
+
+::: {.callout-tip}
+## Check your work
+
+Expected values should add up to the same row and column totals as the observed values. If they do, `np.allclose()` will report `True`.
+
+```{python}
+np.allclose(
+    expected_a.sum(axis=1), row_totals) and \
+    np.allclose(expected_a.sum(axis=0), col_totals)
+```
+:::
+
+### Step 3: Errors
+
+The error in each cell is the observed count minus the expected count. Again, one cell per line.
+
+```{python}
+errors_a = np.full((3, 3), np.nan)
+
+errors_a[0, 0] = observed[0, 0] - expected_a[0, 0]
+errors_a[0, 1] = observed[0, 1] - expected_a[0, 1]
+errors_a[0, 2] = observed[0, 2] - expected_a[0, 2]
+
+errors_a[1, 0] = observed[1, 0] - expected_a[1, 0]
+errors_a[1, 1] = observed[1, 1] - expected_a[1, 1]
+errors_a[1, 2] = observed[1, 2] - expected_a[1, 2]
+
+errors_a[2, 0] = observed[2, 0] - expected_a[2, 0]
+errors_a[2, 1] = observed[2, 1] - expected_a[2, 1]
+errors_a[2, 2] = observed[2, 2] - expected_a[2, 2]
+```
+
+```{python}
+#| label: tbl-errors-a
+#| tbl-cap: "Errors (observed minus expected), cell by cell."
+
+show(errors_a, digits=2)
+```
+
+Positive errors mean more respondents than expected. Negative errors mean fewer. Notice that the errors add up to (about) zero in each row and column. That is why we cannot just add the raw errors: they cancel out.
+
+### Step 4: Squared errors
+
+Squaring makes every error positive. In Python, `**` is the exponent operator, so `x ** 2` is $x^2$.
+
+```{python}
+sq_errors_a = np.full((3, 3), np.nan)
+
+sq_errors_a[0, 0] = errors_a[0, 0] ** 2
+sq_errors_a[0, 1] = errors_a[0, 1] ** 2
+sq_errors_a[0, 2] = errors_a[0, 2] ** 2
+
+sq_errors_a[1, 0] = errors_a[1, 0] ** 2
+sq_errors_a[1, 1] = errors_a[1, 1] ** 2
+sq_errors_a[1, 2] = errors_a[1, 2] ** 2
+
+sq_errors_a[2, 0] = errors_a[2, 0] ** 2
+sq_errors_a[2, 1] = errors_a[2, 1] ** 2
+sq_errors_a[2, 2] = errors_a[2, 2] ** 2
+```
+
+```{python}
+#| label: tbl-sq-errors-a
+#| tbl-cap: "Squared errors, cell by cell."
+
+show(sq_errors_a, digits=2)
+```
+
+### Step 5: Normalized squared errors
+
+A squared error of 10 matters a lot in a cell where we expected 15 people, but not much in a cell where we expected 1,500. Dividing each squared error by its expected value puts every cell on the same footing.
+
+```{python}
+norm_errors_a = np.full((3, 3), np.nan)
+
+norm_errors_a[0, 0] = sq_errors_a[0, 0] / expected_a[0, 0]
+norm_errors_a[0, 1] = sq_errors_a[0, 1] / expected_a[0, 1]
+norm_errors_a[0, 2] = sq_errors_a[0, 2] / expected_a[0, 2]
+
+norm_errors_a[1, 0] = sq_errors_a[1, 0] / expected_a[1, 0]
+norm_errors_a[1, 1] = sq_errors_a[1, 1] / expected_a[1, 1]
+norm_errors_a[1, 2] = sq_errors_a[1, 2] / expected_a[1, 2]
+
+norm_errors_a[2, 0] = sq_errors_a[2, 0] / expected_a[2, 0]
+norm_errors_a[2, 1] = sq_errors_a[2, 1] / expected_a[2, 1]
+norm_errors_a[2, 2] = sq_errors_a[2, 2] / expected_a[2, 2]
+```
+
+```{python}
+#| label: tbl-norm-errors-a
+#| tbl-cap: "Normalized squared errors, cell by cell."
+
+show(norm_errors_a, digits=3)
+```
+
+These are the same normalized errors from the pencil-and-paper lesson. The large values in the Isthmus and South columns for Madison natives and Greater Madison natives are where the data depart most from independence.
+
+### Step 6: Add them up
+
+The chi-square statistic is the sum of the nine normalized squared errors. We start a running total at zero and add one cell at a time. The operator `+=` means "add this to the running total."
+
+```{python}
+chi2_a = 0.0
+
+chi2_a += norm_errors_a[0, 0]
+chi2_a += norm_errors_a[0, 1]
+chi2_a += norm_errors_a[0, 2]
+
+chi2_a += norm_errors_a[1, 0]
+chi2_a += norm_errors_a[1, 1]
+chi2_a += norm_errors_a[1, 2]
+
+chi2_a += norm_errors_a[2, 0]
+chi2_a += norm_errors_a[2, 1]
+chi2_a += norm_errors_a[2, 2]
+
+print(f"Chi-square statistic: {chi2_a:.4f}")
+```
+
+### Step 7: Degrees of freedom and the p-value
+
+The degrees of freedom are (rows − 1) × (columns − 1). We get the number of rows and columns from `observed.shape`.
+
+```{python}
+n_rows = observed.shape[0]
+n_cols = observed.shape[1]
+
+df_a = (n_rows - 1) * (n_cols - 1)
+print(f"Degrees of freedom: {df_a}")
+```
+
+`stats.chi2.sf(x, df)` is the "survival function" of the chi-square distribution. It returns the probability of a value *greater than or equal to* `x`, which is exactly the right-tail p-value we looked up in the printed table.
+
+```{python}
+p_value_a = stats.chi2.sf(chi2_a, df_a)
+print(f"p-value: {p_value_a:.10f}")
+```
+
+::: {.callout-note}
+## Very small p-values
+
+The p-value is far smaller than 0.005, which is the last column of the printed table. That agrees with the paper lesson, where the table could tell us only that p < 0.005. Software can tell us the exact value, about `{python} f"{p_value_a:.1e}"`.
+:::
+
+## Approach B: For loops
+
+Approach A works, but look at all the repetition. Every block of nine lines follows a pattern: the row number takes the values 0, 1, and 2, and for each row, the column number takes the values 0, 1, and 2. A **nested `for` loop** expresses that pattern once.
+
+```{python}
+#| code-fold: true
+#| code-summary: "Refresher: how does a nested loop visit every cell?"
+
+for r in range(3):
+    for c in range(3):
+        print(f"row {r}, column {c}")
+```
+
+The outer loop picks a row `r`. For each row, the inner loop walks through every column `c`. The three-by-three grid gets nine visits in total, in the same order as the nine lines of Approach A. We do not want to hard-code the 3 in case the table changes size, so we take the sizes from `observed.shape`.
+
+### Step 2: Expected values
+
+```{python}
+n_rows, n_cols = observed.shape
+
+expected_b = np.full((n_rows, n_cols), np.nan)
+
+for r in range(n_rows):
+    for c in range(n_cols):
+        expected_b[r, c] = row_totals[r] * col_totals[c] / grand_total
+```
+
+```{python}
+#| label: tbl-expected-b
+#| tbl-cap: "Expected values, calculated with nested for loops."
+
+show(expected_b, digits=2)
+```
+
+### Step 3: Errors
+
+```{python}
+errors_b = np.full((n_rows, n_cols), np.nan)
+
+for r in range(n_rows):
+    for c in range(n_cols):
+        errors_b[r, c] = observed[r, c] - expected_b[r, c]
+```
+
+### Step 4: Squared errors
+
+```{python}
+sq_errors_b = np.full((n_rows, n_cols), np.nan)
+
+for r in range(n_rows):
+    for c in range(n_cols):
+        sq_errors_b[r, c] = errors_b[r, c] ** 2
+```
+
+### Step 5: Normalized squared errors
+
+```{python}
+norm_errors_b = np.full((n_rows, n_cols), np.nan)
+
+for r in range(n_rows):
+    for c in range(n_cols):
+        norm_errors_b[r, c] = sq_errors_b[r, c] / expected_b[r, c]
+```
+
+```{python}
+#| label: tbl-norm-errors-b
+#| tbl-cap: "Normalized squared errors, calculated with nested for loops."
+
+show(norm_errors_b, digits=3)
+```
+
+### Step 6: Add them up
+
+```{python}
+chi2_b = 0.0
+
+for r in range(n_rows):
+    for c in range(n_cols):
+        chi2_b += norm_errors_b[r, c]
+
+print(f"Chi-square statistic: {chi2_b:.4f}")
+```
+
+### Step 7: Degrees of freedom and the p-value
+
+```{python}
+df_b = (n_rows - 1) * (n_cols - 1)
+p_value_b = stats.chi2.sf(chi2_b, df_b)
+
+print(f"Degrees of freedom: {df_b}")
+print(f"p-value: {p_value_b:.10f}")
+```
+
+The loops give the same numbers as Approach A, but the code no longer cares how large the table is. A 5-by-7 table would need only different input data.
+
+::: {.callout-tip}
+## Try it: a loop that works for every step
+
+You may have noticed that the four loops for steps 2 through 5 have identical structure. Nothing stops you from combining them into one loop that calculates the expected value, error, squared error, and normalized squared error for one cell, then moves on to the next. We keep them separate here so you can look at every intermediate matrix.
+:::
+
+## Approach C: Matrix operations
+
+numpy can do arithmetic on entire matrices at once. When you write `a - b` and both are matrices of the same shape, numpy subtracts every cell of `b` from the matching cell of `a`. This is faster than loops and needs no indexing. Experienced analysts almost always work this way.
+
+### Step 2: Expected values
+
+Expected values need a row total for every row and a column total for every column, combined so that every row is paired with every column. Matrix multiplication (`@`) does exactly this if the row totals form a column vector and the column totals form a row vector.
+
+`keepdims=True` keeps the summed axis, so that the result stays two-dimensional instead of collapsing to a flat list.
+
+```{python}
+row_totals_m = observed.sum(axis=1, keepdims=True)
+col_totals_m = observed.sum(axis=0, keepdims=True)
+
+print("Row totals (a column vector):")
+print(row_totals_m, "\n")
+print("Column totals (a row vector):")
+print(col_totals_m)
+```
+
+```{python}
+print("Shape of the row totals:   ", row_totals_m.shape)
+print("Shape of the column totals:", col_totals_m.shape)
+```
+
+A (3 × 1) matrix times a (1 × 3) matrix gives a (3 × 3) matrix. Each cell is a row total multiplied by a column total, which is the numerator of @eq-expected. Dividing the whole matrix by the grand total finishes the job.
+
+```{python}
+products = row_totals_m @ col_totals_m
+products
+```
+
+```{python}
+expected_c = products / grand_total
+```
+
+```{python}
+#| label: tbl-expected-c
+#| tbl-cap: "Expected values, calculated with matrix operations."
+
+show(expected_c, digits=2)
+```
+
+### Step 3: Errors
+
+```{python}
+errors_c = observed - expected_c
+```
+
+### Step 4: Squared errors
+
+```{python}
+sq_errors_c = errors_c ** 2
+```
+
+### Step 5: Normalized squared errors
+
+```{python}
+norm_errors_c = sq_errors_c / expected_c
+```
+
+```{python}
+#| label: tbl-norm-errors-c
+#| tbl-cap: "Normalized squared errors, calculated with matrix operations."
+
+show(norm_errors_c, digits=3)
+```
+
+### Step 6: Add them up
+
+```{python}
+chi2_c = norm_errors_c.sum()
+print(f"Chi-square statistic: {chi2_c:.4f}")
+```
+
+### Step 7: Degrees of freedom and the p-value
+
+```{python}
+df_c = (observed.shape[0] - 1) * (observed.shape[1] - 1)
+p_value_c = stats.chi2.sf(chi2_c, df_c)
+
+print(f"Degrees of freedom: {df_c}")
+print(f"p-value: {p_value_c:.10f}")
+```
+
+## Do the three approaches agree?
+
+Different code should give the same answer. `np.allclose()` compares two arrays and returns `True` if every pair of cells matches within a tiny rounding tolerance. (We use it instead of `==` because computers store decimals with small rounding differences.)
+
+```{python}
+#| label: tbl-agreement
+#| tbl-cap: "Comparing the three approaches."
+
+comparison = pd.DataFrame(
+    {
+        "Chi-square": [chi2_a, chi2_b, chi2_c],
+        "df": [df_a, df_b, df_c],
+        "p-value": [p_value_a, p_value_b, p_value_c],
+    },
+    index=["A. Cell by cell", "B. for loops", "C. Matrix operations"],
+)
+
+display(Markdown(comparison.to_markdown(floatfmt=".6g")))
+```
+
+```{python}
+print("Expected values match:        ", np.allclose(expected_a, expected_b) and np.allclose(expected_b, expected_c))
+print("Normalized errors match:      ", np.allclose(norm_errors_a, norm_errors_b) and np.allclose(norm_errors_b, norm_errors_c))
+print("Chi-square statistics match:  ", np.allclose([chi2_a, chi2_b], chi2_c))
+```
+
+## Side by side: the three approaches, condensed
+
+Here is every approach in its shortest form. Choose a tab to compare. (These blocks are for reading and are not re-run.)
+
+::: {.panel-tabset}
+
+### A. Cell by cell
+
+```python
+expected[0, 0] = row_totals[0] * col_totals[0] / grand_total
+# ... eight more lines like it ...
+errors[0, 0]      = observed[0, 0] - expected[0, 0]
+sq_errors[0, 0]   = errors[0, 0] ** 2
+norm_errors[0, 0] = sq_errors[0, 0] / expected[0, 0]
+# ... eight more lines for each of these ...
+chi2 += norm_errors[0, 0]
+# ... eight more lines like it ...
+```
+
+Roughly 45 lines. Transparent, but tedious and error-prone.
+
+### B. For loops
+
+```python
+for r in range(n_rows):
+    for c in range(n_cols):
+        expected[r, c]    = row_totals[r] * col_totals[c] / grand_total
+        errors[r, c]      = observed[r, c] - expected[r, c]
+        sq_errors[r, c]   = errors[r, c] ** 2
+        norm_errors[r, c] = sq_errors[r, c] / expected[r, c]
+        chi2             += norm_errors[r, c]
+```
+
+Roughly 6 lines. Works for any table size.
+
+### C. Matrix operations
+
+```python
+row_totals  = observed.sum(axis=1, keepdims=True)
+col_totals  = observed.sum(axis=0, keepdims=True)
+expected    = row_totals @ col_totals / observed.sum()
+errors      = observed - expected
+sq_errors   = errors ** 2
+norm_errors = sq_errors / expected
+chi2        = norm_errors.sum()
+```
+
+Seven short lines. Each line corresponds to one step of the recipe.
+
+:::
+
+## Make the decision
+
+The decision rule has not changed since the pencil-and-paper lesson. We compare the p-value to the significance level, conventionally 0.05.
+
+```{python}
+alpha = 0.05
+
+print(f"Chi-square statistic: {chi2_c:.4f}")
+print(f"Degrees of freedom:   {df_c}")
+print(f"p-value:              {p_value_c:.2e}")
+print()
+
+if p_value_c < alpha:
+    print("Reject the null hypothesis: the data provide evidence that route depends on origin.")
+else:
+    print("Fail to reject the null hypothesis: no evidence that route depends on origin.")
+```
+
+**Decision:** With $\chi^2$ = `{python} f"{chi2_c:.4f}"`, $df$ = `{python} df_c`, and a p-value of about `{python} f"{p_value_c:.1e}"`, we reject the null hypothesis. There is evidence that the route travelers take to the airport is related to where they are from.
+
+::: {.callout-warning}
+## What this does and does not tell you
+
+Rejecting the null hypothesis tells us the two variables are related. It does not prove that being from a certain place *causes* someone to choose a certain route, and it does not say which cells drive the result. The normalized errors help with that. Also remember the data here are fictional, and the Data Maker page deliberately built the relationship into them.
+:::
+
+## Your turn
+
+Try these on your own, using any of the three approaches.
+
+1. Combine Madison native and Greater Madison native into a single "Native" group so there are only two rows. What are the new degrees of freedom? (Hint: the pencil-and-paper lesson found $\chi^2 = 7.2311$ for this table. `survey["origin"].replace(...)` will help you recode the groups.)
+2. Change `n_respondents` on the [Data Maker](data-maker.qmd) page to 3000, re-run the page, and repeat the analysis. What happens to the chi-square statistic and the p-value when the sample gets larger?
+3. Build the loop from Approach B so that a single loop calculates all four matrices at once.
+
+::: {.callout-tip collapse="true"}
+## Answer to question 1
+
+```{python}
+combined = survey.assign(
+    origin=survey["origin"].replace({"Madison native": "Native", "Greater Madison native": "Native"})
+)
+obs2 = pd.crosstab(combined["origin"], combined["route"]).loc[["Native", "Transplant"], routes].to_numpy()
+
+exp2 = obs2.sum(axis=1, keepdims=True) @ obs2.sum(axis=0, keepdims=True) / obs2.sum()
+chi2_2 = (((obs2 - exp2) ** 2) / exp2).sum()
+df_2 = (obs2.shape[0] - 1) * (obs2.shape[1] - 1)
+
+print(f"Chi-square: {chi2_2:.4f}, df: {df_2}, p-value: {stats.chi2.sf(chi2_2, df_2):.4f}")
+```
+
+The table now has 2 rows and 3 columns, so $df = (2-1) \times (3-1) = 2$.
+:::
+
+## Summary
+
+1. Load the data with `pd.read_csv()` and build the cross tabulation with `pd.crosstab()`.
+2. Convert it to a numpy array with `.to_numpy()`. This is the `observed` matrix.
+3. Find the row totals, column totals, and grand total with `.sum()`.
+4. Calculate the expected values: row total × column total ÷ grand total.
+5. Calculate the errors: observed − expected.
+6. Square the errors.
+7. Divide the squared errors by the expected values to get the normalized squared errors.
+8. Add up the normalized squared errors to get the chi-square statistic.
+9. Find the degrees of freedom: (rows − 1) × (columns − 1).
+10. Convert the chi-square statistic and degrees of freedom to a p-value with `stats.chi2.sf()`.
+11. If the p-value is less than 0.05, reject the null hypothesis. Otherwise, fail to reject it.
+
+Steps 4 through 8 can be written cell by cell, with nested `for` loops, or as matrix operations. All three give the same answer.

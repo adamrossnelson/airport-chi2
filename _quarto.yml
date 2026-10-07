@@ -13,8 +13,16 @@ website:
             text: Data Maker
           - href: data-preview.qmd
             text: Data Preview
-      - href: chi2-example-tutorial.qmd
-        text: Chi-Square Tutorial
+      - text: Chi-Square Tutorials
+        menu:
+          - href: chi2-example-tutorial-airport.qmd
+            text: Airport Routes
+          - href: chi2-example-tutorial-airport-python.qmd
+            text: Airport Routes in Python
+          - href: chi2-example-tutorial-airport-pragmatic.qmd
+            text: Airport Routes, Pragmatic
+          - href: chi2-example-tutorial-math.qmd
+            text: Math Programs
       - about.qmd
 
 format:
